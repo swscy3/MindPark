@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입 페이지</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .wrapper {
+            width: 90%;
+            max-width: 700px;
+            aspect-ratio: 1 / 1; /* 1:1 비율 유지 */
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ccc;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        header, footer {
+            background-color: green;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+        header h1, footer p {
+            font-size: 18px;
+            margin: 0;
+        }
+        .container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            width: 20%;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group button {
+            flex: 1;
+            padding: 8px;
+            margin-left: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .form-group button {
+            background-color: #ddd;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #ccc;
+        }
+        .form-group .small-input {
+            flex: 1;
+        }
+        .form-group .explanation {
+            color: blue;
+            margin-left: 10px;
+            font-size: 12px;
+        }
+        .small-font-button {
+            font-size: 12px; /* 폰트 크기 축소 */
+        }
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: darkgreen;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1>&lt;header&gt;</h1>
+        </header>
+        <div class="container">
+            <div class="form-group">
+                <label>아이디 *</label>
+                <input type="text" placeholder="아이디를 입력하세요.">
+                <button>중복확인</button>
+                <span class="explanation">아이디 설정에 대한 설명</span>
+            </div>
+            <div class="form-group">
+                <label>비밀번호 *</label>
+                <input type="password" placeholder="비밀번호를 입력하세요.">
+                <span class="explanation">비밀번호 설정에 대한 설명</span>
+            </div>
+            <div class="form-group">
+                <label>비밀번호 확인 *</label>
+                <input type="password" placeholder="비밀번호를 입력하세요.">
+                <span class="explanation">입력한 비밀번호가 설정한 비밀번호와 다를 시 뜰 문구</span>
+            </div>
+            <div class="form-group">
+                <label>이름 *</label>
+                <input type="text" placeholder="이름을 입력하세요.">
+            </div>
+            <div class="form-group">
+                <label>전화번호 *</label>
+                <select class="small-input">
+                    <option>010</option>
+                    <option>011</option>
+                    <option>016</option>
+                </select>
+                <input type="text" class="small-input" placeholder="앞자리">
+                <input type="text" class="small-input" placeholder="뒷자리">
+            </div>
+            <div class="form-group">
+                <label>이메일 *</label>
+                <input type="text" class="small-input" placeholder="이메일 입력">
+                <span>@</span>
+                <input type="text" class="small-input" placeholder="도메인">
+                <select class="small-input">
+                    <option>직접입력</option>
+                    <option>naver.com</option>
+                    <option>gmail.com</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>주소 *</label>
+                <input type="text" placeholder="주소를 입력하세요.">
+                <button>우편번호찾기</button>
+            </div>
+            <div class="form-group">
+                <label>사번 *</label>
+                <input type="text" placeholder="사번 번호를 입력하세요.">
+                <button>인증번호 전송</button>
+            </div>
+            <div class="form-group">
+                <label>인증코드 *</label>
+                <input type="text" placeholder="인증코드를 입력하세요.">
+                <button class="small-font-button">인증 완료 / 인증 실패</button>
+            </div>
+            <button class="submit-button">회원가입하기</button>
+        </div>
+        <footer>
+            <p>&lt;footer&gt;</p>
+        </footer>
+    </div>
+</body>
+</html>
