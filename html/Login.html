@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>야외 근로자 건강 상태 모니터링 시스템</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .wrapper {
+            width: 90%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1; /* 1:1 비율 유지 */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #ccc;
+            background-color: white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        header, footer {
+            background-color: green;
+            color: white;
+            text-align: center;
+            padding: 10px 0;
+        }
+
+        header h1{
+            font-size: 25px;
+        }
+
+        footer p{
+            font-size: 25px;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container h1 {
+            margin-bottom: 20px;
+        }
+        .input-box {
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 320px;
+        }
+        .input-box input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .login-button {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px;
+            background-color: #ddd;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .login-button:hover {
+            background-color: #ccc;
+        }
+        .link-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .link-buttons button {
+            padding: 10px 20px;
+            background-color: #ddd;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .link-buttons button:hover {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+            <h1 class="header h1">야외 근로자 건강 상태 모니터링 시스템</h1>
+        </header>
+        <div class="container">
+            <div class="input-box">
+                <input type="text" placeholder="아이디 입력">
+            </div>
+            <div class="input-box">
+                <input type="password" placeholder="비밀번호 입력">
+            </div>
+            <button class="login-button">로그인</button>
+            <div class="link-buttons">
+                <button>아이디 찾기</button>
+                <button>패스워드 찾기</button>
+                <button>회원가입</button>
+            </div>
+        </div>
+        <footer>
+            <p>&lt;footer&gt;</p>
+        </footer>
+    </div>
+</body>
+</html>
