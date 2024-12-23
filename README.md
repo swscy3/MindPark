@@ -13,7 +13,7 @@
 
 ## 설치 및 실행
 1. **환경 설정**
-   - Python 3.8 이상 설치
+   - Python 3.10 이상 설치
    - 필수 라이브러리 설치: `pip install -r requirements.txt`
 2. **센서 데이터 읽기**
 	- 'arduino.ino' 센서를 리딩하는 아두이노 코드
