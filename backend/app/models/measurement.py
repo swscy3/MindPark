@@ -10,7 +10,6 @@ class DeviceMeasurement(db.Model):
     measure_time = db.Column(db.DateTime, default=datetime.utcnow)
     battery = db.Column(db.Integer)
     hr = db.Column(db.Integer)  # 심박수
-    sbp = db.Column(db.Integer)  # 수축기 혈압
     temp = db.Column(db.Float)  # 체온
     resp = db.Column(db.Integer)  # 호흡수
     spo2 = db.Column(db.Integer)  # 산소포화도
