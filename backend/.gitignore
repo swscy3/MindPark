@@ -122,3 +122,5 @@ test_files/
 test_media/
 
 venv/
+
+config.py
