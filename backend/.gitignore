@@ -124,3 +124,8 @@ test_media/
 venv/
 
 config.py
+
+# .gitignore
+.env
+*.pyc
+__pycache__/
