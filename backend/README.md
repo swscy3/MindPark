@@ -79,7 +79,7 @@ safety_management_system/
 
 ## 기술 스택
 
-* **백엔드** : Flask 2.2.3, Python 3.8+
+* **백엔드** : Flask 2.2.3, Python 3.11.12+
 * **데이터베이스** : SQLAlchemy, MySQL
 * **인증** : JWT (Flask-JWT-Extended)
 * **API 문서화** : Swagger/Flask-RESTful
