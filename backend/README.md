@@ -29,13 +29,15 @@ safety_management_system/
     │   ├── device.py       # 기기, 기기관리, 고장 모델
     │   └── measurement.py  # 측정 데이터 모델
     ├── routes/             # API 라우트
-    │   ├── __init__.py
     │   ├── auth.py         # 인증 라우트
     │   ├── employee.py     # 직원 정보 관리 라우트
     │   ├── dashboard.py    # 대시보드 라우트
     │   ├── device.py       # 기기 관리 라우트
     │   ├── health.py       # 건강 데이터 라우트
     │   └── anomaly.py      # 이상 징후 라우트
+    ├── route_mobile/       # API(앱) 라우트
+    │   ├── __init__.py
+    │   └── auth.py         # 인증 라우트
     ├── utils/              # 유틸리티 함수
     │   ├── __init__.py
     │   ├── auth.py         # 인증 헬퍼
