@@ -1,11 +1,12 @@
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 import os
+import logging  # 추가
+from logging.handlers import RotatingFileHandler  # 추가
 from dotenv import load_dotenv
-
 # .env 파일 로드 (개발 환경용)
 load_dotenv()
 
@@ -13,6 +14,7 @@ load_dotenv()
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
+
 
 def create_app(config_name=None):
     # Flask 앱 인스턴스 생성
@@ -30,6 +32,38 @@ def create_app(config_name=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
     CORS(app)
+    
+    # 로깅 설정 추가 (여기에 새 코드 추가)
+    if not app.debug and not app.testing:
+        # 로그 디렉토리 생성
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+        
+        # 로그 파일 핸들러 설정 (텍스트 파일로 저장)
+        file_handler = RotatingFileHandler(
+            os.path.join(log_dir, 'app.txt'),  # .txt 확장자 사용
+            maxBytes=10*1024*1024,  # 10MB
+            backupCount=5  # 최대 5개 백업 파일
+        )
+        
+        # 로그 포맷 설정
+        formatter = logging.Formatter(
+            '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+        )
+        file_handler.setFormatter(formatter)
+        
+        # 로그 레벨 설정 - 이 부분이 변경됨
+        log_level = getattr(logging, app.config.get('LOG_LEVEL', 'INFO'))
+        file_handler.setLevel(log_level)
+        
+        # 앱 로거에 핸들러 추가
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(log_level)
+        
+        # 로깅 시작 메시지
+        app.logger.info(f"{'='*20} 애플리케이션 시작 {'='*20}")
+        app.logger.info(f"실행 환경: {config_name}")
     
     # JWT 토큰 블랙리스트 확인 콜백 설정
     from models.token import TokenBlocklist
@@ -72,10 +106,13 @@ def create_app(config_name=None):
     # 에러 핸들러 등록
     @app.errorhandler(404)
     def page_not_found(e):
+        if app.logger.isEnabledFor(logging.WARNING):
+            app.logger.warning(f"404 오류: {request.path}")
         return {'error': '요청한 리소스를 찾을 수 없습니다.'}, 404
     
     @app.errorhandler(500)
     def internal_server_error(e):
+        app.logger.error(f"500 서버 오류: {str(e)}")
         return {'error': '서버 내부 오류가 발생했습니다.'}, 500
     
     # Shell 컨텍스트 설정
@@ -101,5 +138,10 @@ def create_app(config_name=None):
             DeviceMeasurement=DeviceMeasurement,
             TokenBlocklist=TokenBlocklist
         )
+        
+    app.logger.info("애플리케이션이 성공적으로 초기화되었습니다.")
+    app.logger.warning("이것은 경고 로그 테스트입니다.")
+    app.logger.error("이것은 오류 로그 테스트입니다.")
     
     return app
+
