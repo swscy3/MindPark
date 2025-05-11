@@ -93,6 +93,7 @@ def create_app(config_name=None):
     from route.anomaly import anomaly_bp
     from route_mobile.auth import mobile_auth_bp
     from route_mobile.dashboard import app_dashboard_bp
+    from route_mobile.measurement import measurement_bp
     
     app.register_blueprint(auth_bp, url_prefix='/api')
     app.register_blueprint(employee_bp, url_prefix='/api')
@@ -102,6 +103,7 @@ def create_app(config_name=None):
     app.register_blueprint(anomaly_bp, url_prefix='/api')
     app.register_blueprint(mobile_auth_bp, url_prefix='/api')
     app.register_blueprint(app_dashboard_bp,url_prefix='/api')
+    app.register_blueprint(measurement_bp,url_prefix='/api')
     
     # 에러 핸들러 등록
     @app.errorhandler(404)
