@@ -1,0 +1,142 @@
+.risk-table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 16px;
+  width: 100%; /* 컨테이너 너비 100% */
+  min-width: 400px; /* 최소 너비 설정 */
+}
+
+.table-header {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.table-header h3 {
+  color: #096dd9;
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.sos-badge {
+  background-color: #ff4d4f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 300;
+  margin-left: 10px; /* 제목과의 간격 */
+}
+
+.risk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 18px;
+  table-layout: fixed;
+}
+
+/* 열 너비 설정 */
+.risk-table th:nth-child(1), 
+.risk-table td:nth-child(1) {
+  width: 25%;
+  min-width: 100px; /* 최소 너비 설정 */
+}
+
+.risk-table th:nth-child(2), 
+.risk-table td:nth-child(2) {
+  width: 25%;
+  min-width: 80px; /* 최소 너비 설정 */
+}
+
+.risk-table th:nth-child(3), 
+.risk-table td:nth-child(3) {
+  width: 25%;
+  min-width: 80px; /* 최소 너비 설정 */
+}
+
+.risk-table th:nth-child(4), 
+.risk-table td:nth-child(4) {
+  width: 25%;
+  min-width: 80px; /* 최소 너비 설정 */
+}
+
+.risk-table th, 
+.risk-table td {
+  padding: 12px 4px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.risk-table th {
+  font-weight: 600;
+  color: #595959;
+  background-color: #f5f7fa;
+  font-size: 18px;
+}
+
+.risk-table td {
+  font-size: 18px;
+}
+
+.risk-table tr:hover {
+  background-color: #f0f5ff;
+}
+
+/* 행 전체 스타일 - 배경색 유지 */
+.risk-table tr.danger {
+  background-color: rgba(255, 77, 79, 0.05);
+}
+
+.risk-table tr.warning {
+  background-color: rgba(250, 173, 20, 0.05);
+}
+
+/* 위험도 배지 스타일 */
+.risk-level-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-weight: 300;
+  font-size: 18px;
+}
+
+/* 두 테이블을 왼쪽에 배치하기 위한 플렉스 컨테이너 스타일 */
+.risk-tables-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 18px;
+  margin-bottom: 20px;
+  width: 100%; /* 전체 너비 사용 */
+}
+
+/* 데이터가 없을 때 표시되는 메시지 스타일 */
+.no-data {
+  color: #8c8c8c;
+  font-style: italic;
+  padding: 16px 0;
+  font-size: 16px;
+  text-align: center;
+}
+
+/* 로딩 중일 때 표시할 스타일 */
+.loading {
+  text-align: center;
+  padding: 16px 0;
+  color: #1890ff;
+  font-size: 16px;
+}
+
+/* 오류 메시지 스타일 */
+.error-message {
+  text-align: center;
+  padding: 16px 0;
+  color: #ff4d4f;
+  font-size: 16px;
+}

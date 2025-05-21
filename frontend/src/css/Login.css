@@ -1,0 +1,117 @@
+/* login.css - theme.css 변수 활용 */
+
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: var(--spacing-lg);
+}
+
+.login-title {
+  font-size: var(--font-size-title);
+  font-weight: 600;
+  margin-bottom: var(--spacing-xl);
+  text-align: center;
+  color: var(--primary-dark);
+  line-height: 1.3;
+}
+
+.login-form {
+  width: 400px;
+  max-width: 100%;
+  padding: var(--spacing-xl);
+  background-color: var(--surface-color);
+  border-radius: var(--border-radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.input-group input {
+  width: 100%;
+  padding: var(--spacing-md);
+  font-size: var(--font-size-md);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.input-group input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.login-button {
+  width: 100%;
+  padding: var(--spacing-md);
+  background-color: var(--primary-color);
+  color: var(--text-light);
+  border: none;
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.login-button:hover {
+  background-color: var(--primary-dark);
+}
+
+.login-button:active {
+  transform: translateY(1px);
+}
+
+.login-links {
+  margin-top: var(--spacing-xl);
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-lg);
+}
+
+.login-links button {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  padding: var(--spacing-xs);
+}
+
+.login-links button:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 480px) {
+  .login-form {
+    width: 100%;
+    padding: var(--spacing-lg);
+  }
+  
+  .login-links {
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+}

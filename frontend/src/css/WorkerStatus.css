@@ -1,0 +1,312 @@
+/* WorkerStatus.css */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+body {
+  background-color: #f5f5f5;
+}
+
+.worker-status {
+  width: 100%;
+  position: relative;
+  min-height: 100vh;
+  padding-bottom: 20px;
+}
+
+/* WorkerStatus.css 수정 */
+.tabs {
+  display: flex;
+  justify-content: left; /* 왼쪽 정렬 유지 */
+  gap: 20px;
+  background-color: transparent; /* 배경색 제거 */
+}
+
+.tab {
+  background-color: white;
+  padding: 15px 30px;
+  border: 1px solid #ddd;
+  width: 300px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px; /* 둥근 모서리 추가 */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
+}
+
+.tab.active {
+  background-color: #1e88e5; /* 활성화 된 탭의 배경색을 파란색으로 변경 */
+  border-bottom: none; /* 하단 테두리 제거 */
+  color: white; /* 텍스트 색상을 흰색으로 변경 */
+}
+
+.worker-column {
+  flex: 0 0 calc(20% - 16px); /* 5개를 한 줄에 표시하므로 20% (100% ÷ 5) */
+  max-width: calc(20% - 16px); /* 간격을 고려한 너비 */
+}
+
+.worker-row {
+  display: flex;
+  justify-content: flex-start;
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.worker-container {
+  display: flex;
+  flex-direction: column;
+  margin-top: 24px;
+  gap: 20px;
+  margin-bottom: 20px;
+  width: 100%; /* 컨테이너 전체 너비 사용 */
+}
+
+.worker-card {
+  background-color: #fff6ff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  padding: 15px;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.worker-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.normal-card {
+  background-color: rgb(255, 255, 243);
+}
+
+.status-indicator {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f44336;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+/* 주의 상태 표시기 (추가) */
+.caution-indicator {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ffc107; /* 노란색 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: black; /* 노란색 배경에는 검은색 텍스트가 더 잘 보임 */
+  font-weight: bold;
+  font-size: 0.8rem;
+}
+
+.worker-info {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.profile-image {
+  width: 80px;
+  height: 80px;
+  background-color: #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.profile-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.info-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.worker-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.worker-age, .worker-phone {
+  margin-bottom: 5px;
+  color: #333;
+  font-size: 0.9rem;
+}
+
+.worker-location {
+  color: #1e88e5;
+  cursor: pointer;
+  text-decoration: underline;
+  margin-top: 5px;
+  font-size: 0.9rem;
+}
+
+.detail-section {
+  margin-top: 15px;
+}
+
+.section-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.section-title::before {
+  content: "•";
+  margin-right: 8px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 3px 0;
+  border-bottom: 1px dashed #eee;
+  font-size: 0.9rem;
+}
+
+.detail-value {
+  font-weight: bold;
+}
+
+/* 접이식 디바이스 정보 스타일 */
+.collapsible-section {
+  margin-top: 15px;
+}
+
+.collapsible-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
+  transition: opacity 0.2s ease;
+}
+
+.collapsible-header:hover {
+  opacity: 0.8;
+}
+
+.collapsible-header .section-title {
+  margin-bottom: 0;
+  font-weight: normal;
+  color: #333;
+}
+
+.collapsible-header .section-title::before {
+  content: "•";
+  margin-right: 8px;
+  color: #666;
+}
+
+.collapsible-icon {
+  font-size: 10px;
+  color: #999;
+  transition: transform 0.3s ease;
+}
+
+.collapsible-icon.is-open {
+  transform: rotate(180deg);
+}
+
+.collapsible-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  padding: 0 10px;
+}
+
+.collapsible-content.is-open {
+  max-height: 100px;
+  opacity: 1;
+  padding: 10px;
+  margin-top: 5px;
+}
+
+.pagination-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.page-info {
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.pagination-button {
+  background-color: #f0f0f0;
+  border: 1px solid #ddd;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-numbers {
+  display: flex;
+  gap: 5px;
+}
+
+.page-number {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background-color: white;
+  cursor: pointer;
+}
+
+.active-page {
+  background-color: #1e88e5;
+  color: white;
+  border-color: #1e88e5;
+}

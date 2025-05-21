@@ -1,0 +1,44 @@
+.notification-log-view {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f7fafb;
+}
+
+.content-container {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px); /* TopBar 높이를 뺀 값 */
+}
+
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.notification-log-card {
+  margin-bottom: 20px;
+  border-radius: 8px;
+  background-color: #f7fafb;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.notification-log-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #0d47a1;
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* 반응형 레이아웃 */
+@media (max-width: 960px) {
+  .content-container {
+    flex-direction: column;
+  }
+  
+  .main-content {
+    padding: 16px;
+  }
+}

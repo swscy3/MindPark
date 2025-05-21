@@ -1,0 +1,28 @@
+.statistics-graph {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .statistics-graph h3 {
+    color: #096dd9;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .chart-container {
+    height: 200px;
+    background-color: #f0f5ff;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .placeholder-chart {
+    color: #8c8c8c;
+  }

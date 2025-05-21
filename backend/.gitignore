@@ -1,0 +1,132 @@
+# .gitignore
+# Git 버전 관리에서 제외할 파일들
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/media/
+/static/  # collectstatic 후 생성되는 폴더 (실제 static 파일들은 포함 안됨)
+
+# 환경 설정
+.env
+.env.*
+!.env.example
+*.env
+
+# 가상환경
+venv/
+env/
+ENV/
+worker_safety_env/
+
+# IDE 설정
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# 임시 파일
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# 테스트 커버리지
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# 업로드된 파일 (개발용)
+/media/*
+!/media/.gitkeep
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytest
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# 로그 파일
+*.log
+logs/
+
+# 배포 관련
+# nginx 로그는 제외하지 않음 (디버깅용)
+# *.conf
+
+# 백업 파일
+*.sql
+dump.rdb
+*.dump
+
+# 사용자 업로드 파일
+user_uploads/
+
+# SSL 인증서 (테스트용)
+*.pem
+*.key
+*.crt
+
+# 테스트 파일
+test_files/
+test_media/
+
+myenv/
+
+config.py
+
+# .gitignore
+.env
+*.pyc
+__pycache__/
+

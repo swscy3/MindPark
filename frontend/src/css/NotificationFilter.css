@@ -1,0 +1,20 @@
+.notification-filter {
+  padding: 16px;
+  background-color: #f0f8ff;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.filter-input {
+  background-color: white;
+  border-radius: 4px;
+}
+
+.filter-button {
+  background-color: #1565c0 !important;
+  color: white !important;
+}
+
+.filter-reset-button {
+  color: #1565c0 !important;
+}

@@ -1,0 +1,59 @@
+.device-info {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 16px;
+  }
+  
+  .device-info h3 {
+    color: #096dd9;
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  
+  .device-stats {
+    margin-bottom: 16px;
+  }
+  
+  .stat-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .stat-label {
+    color: #595959;
+  }
+  
+  .stat-value {
+    font-weight: 600;
+  }
+  
+  .stat-value.success {
+    color: #52c41a;
+  }
+  
+  .stat-value.warning {
+    color: #faad14;
+  }
+  
+  .stat-value.danger {
+    color: #ff4d4f;
+  }
+
+  .btn-primary {
+    background-color: #1890ff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+  }
+  
+  .btn-primary:hover {
+    background-color: #096dd9;
+  }
