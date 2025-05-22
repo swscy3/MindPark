@@ -3,9 +3,9 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from marshmallow import ValidationError
 from ..service.auth_service import AuthService
-from ..schemas.auth_schemas import LoginSchema  # 공용 스키마 사용
+from app.schema import LoginSchema  # 공용 스키마 사용
 from datetime import datetime
-from app.model import DeviceManagement,Device, db
+from app.model import DeviceManagement, Device, db, Employee
 
 # 모바일 인증 블루프린트 생성
 mobile_auth_bp = Blueprint('mobile_auth', __name__)
@@ -40,11 +40,8 @@ def mobile_login():
     
     # 4. 출근 기록 추가
     try:
-        # 디바이스 이름 가져오기 (요청에 있으면 사용, 없으면 기본값)
-        device_name = request.json.get('device_name', '스마트워치')
-        
-        # 디바이스 이름으로 디바이스 ID 조회
-        device = Device.query.filter_by(product=device_name).first()
+        # Device 테이블에서 emp_id로 디바이스 조회
+        device = Device.query.filter_by(emp_id=emp_id).first()
         
         if device:
             device_id = device.device_id
@@ -60,13 +57,13 @@ def mobile_login():
             # DB에 저장
             db.session.add(check_in_record)
             db.session.commit()
-            print(f"출근 기록 생성: 직원 {emp_id}, 디바이스 {device_id}({device_name}), 시간 {now}")
+            print(f"출근 기록 생성: 직원 {emp_id}, 디바이스 {device_id}, 시간 {now}")
         else:
-            print(f"출근 기록 생성 실패: 디바이스 이름 '{device_name}'에 해당하는 장치를 찾을 수 없습니다")
+            print(f"출근 기록 생성 실패: 직원 {emp_id}에 연결된 디바이스를 찾을 수 없습니다")
     except Exception as e:
         print(f"출근 기록 생성 실패: {str(e)}")
         # 출근 기록 실패해도 로그인은 허용
-    
+        
     # 5. 응답 반환
     return jsonify({
         "message": "로그인 성공",
@@ -79,13 +76,9 @@ def mobile_login():
 @jwt_required()
 def mobile_logout():
     """모바일 로그아웃 API"""
-    # JWT 페이로드 가져오기
+    # JWT 페이로드와 emp_id 가져오기
     jwt_payload = get_jwt()
     emp_id = get_jwt_identity()
-    
-    # 요청 데이터 가져오기
-    data = request.get_json() or {}
-    device_name = data.get('device_name', '스마트워치')  # 기본값 설정
     
     # 데이터베이스 기반 토큰 블랙리스트에 추가
     success = AuthService.logout(jwt_payload)
@@ -95,13 +88,13 @@ def mobile_logout():
         try:
             now = datetime.now()
             
-            # 1. 디바이스 이름으로 디바이스 ID 조회
-            device = Device.query.filter_by(product=device_name).first()
+            # Device 테이블에서 emp_id로 디바이스 조회
+            device = Device.query.filter_by(emp_id=emp_id).first()
             
             if device:
                 device_id = device.device_id
                 
-                # 2. 해당 직원의 해당 디바이스 출근 기록 중 퇴근 시간이 없는 가장 최근 기록 찾기
+                # 해당 직원의 해당 디바이스 출근 기록 중 퇴근 시간이 없는 가장 최근 기록 찾기
                 latest_check_in = DeviceManagement.query.filter_by(
                     emp_id=emp_id,
                     device_id=device_id, 
@@ -111,12 +104,12 @@ def mobile_logout():
                 if latest_check_in:
                     latest_check_in.check_out = now
                     db.session.commit()
-                    print(f"퇴근 기록 업데이트: 직원 {emp_id}, 디바이스 {device_id}({device_name}), 시간 {now}")
+                    print(f"퇴근 기록 업데이트: 직원 {emp_id}, 디바이스 {device_id}, 시간 {now}")
                 else:
-                    print(f"퇴근 기록 업데이트 실패: 디바이스 {device_id}({device_name})의 출근 기록 없음 (직원 {emp_id})")
+                    print(f"퇴근 기록 업데이트 실패: 디바이스 {device_id}의 출근 기록 없음 (직원 {emp_id})")
             else:
-                # 디바이스를 찾을 수 없는 경우, 가장 최근 출근 기록 업데이트
-                print(f"지정된 디바이스 '{device_name}'을 찾을 수 없어 가장 최근 출근 기록을 업데이트합니다.")
+                # 직원에 연결된 디바이스를 찾을 수 없는 경우, 가장 최근 출근 기록 업데이트
+                print(f"직원 {emp_id}에 연결된 디바이스를 찾을 수 없어 가장 최근 출근 기록을 업데이트합니다.")
                 latest_check_in = DeviceManagement.query.filter_by(
                     emp_id=emp_id, 
                     check_out=None
