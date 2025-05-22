@@ -1,4 +1,4 @@
-from ...model import Employee, EmployeeHealth, EmergencyContact, db
+from app.model import Employee, EmployeeHealth, EmergencyContact, db
 
 class ProfileService:
     @staticmethod
@@ -24,13 +24,14 @@ class ProfileService:
                 employee.phone = data['phone']
             
             # 건강 정보 업데이트
-            health_fields = ['HT', 'HeartDisease', 'Pscyco', 'DM', 'CerevD', 'CKD']
+            health_fields = ['HT', 'HeartDisease', 'Pscyco', 'DM', 'CerevD', 'CKD', 'other_conditions']
             if any(field in data for field in health_fields):
                 health_info = EmployeeHealth.query.filter_by(emp_id=emp_id).first()
                 
                 # 건강 정보가 없으면 새로 생성
                 if not health_info:
                     health_info = EmployeeHealth(emp_id=emp_id)
+                    health_info.other_conditions = ""  # 기본값 설정
                     db.session.add(health_info)
                 
                 # 건강 정보 필드 업데이트
@@ -64,3 +65,60 @@ class ProfileService:
         except Exception as e:
             db.session.rollback()
             return False, f"서버 오류가 발생했습니다: {str(e)}"
+    
+    @staticmethod
+    def get_profile(emp_id):
+        """
+        직원 프로필 정보 조회
+        
+        Args:
+            emp_id (str): 직원 ID
+            
+        Returns:
+            dict: 프로필 정보 또는 None
+        """
+        try:
+            # 직원 기본 정보 조회
+            employee = Employee.query.filter_by(emp_id=emp_id).first()
+            if not employee:
+                return None
+            
+            # 건강 정보 조회
+            health_info = EmployeeHealth.query.filter_by(emp_id=emp_id).first()
+            
+            # 보호자 정보 조회
+            emergency_contact = EmergencyContact.query.filter_by(emp_id=emp_id).first()
+            
+            # 프로필 데이터 구성
+            profile_data = {
+                # 직원 기본 정보
+                "emp_id": employee.emp_id,
+                "name": employee.name,
+                "dept": employee.dept,
+                "position": employee.position,
+                "phone": employee.phone,
+                "email": employee.email,
+                "addr": employee.addr,
+                "birth": employee.birth.isoformat() if employee.birth else None,
+                "gender": employee.gender,
+                "age": employee.age,
+                
+                # 건강 정보
+                "HT": health_info.HT if health_info else False,
+                "HeartDisease": health_info.HeartDisease if health_info else False,
+                "Pscyco": health_info.Pscyco if health_info else False,
+                "DM": health_info.DM if health_info else False,
+                "CerevD": health_info.CerevD if health_info else False,
+                "CKD": health_info.CKD if health_info else False,
+                "other_conditions": health_info.other_conditions if health_info else "",
+                
+                # 보호자 정보
+                "guardian_name": emergency_contact.contact_name if emergency_contact else "",
+                "guardian_rel": emergency_contact.relation if emergency_contact else "",
+                "guardian_phone": emergency_contact.contact_phone if emergency_contact else ""
+            }
+            
+            return profile_data
+            
+        except Exception as e:
+            return None
