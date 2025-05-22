@@ -14,13 +14,13 @@ def insert_employee(cursor):
         cursor.execute("""
             INSERT INTO EMPLOYEE (
                 emp_id, name, dept, position, phone, email, addr,
-                birth, gender, age, picture
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                birth, gender, age, picture, password
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
         """, (
             row['emp_id'], row['name'], row['dept'], row['position'], row['phone'],
             row['email'], row['addr'],
             row['birth'] if pd.notna(row['birth']) else None,
-            row['gender'], row['age'], row['picture']
+            row['gender'], row['age'], row['picture'], row['password']
         ))
     print("✅ EMPLOYEE 삽입 완료")
     
@@ -40,11 +40,13 @@ def insert_employee_health(cursor):
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO EMPLOYEE_HEALTH (
-                emp_id, HT, HeartDisease, Pscyco, DM, CerevD, CKD
-            ) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                emp_id, HT, HeartDisease, Pscyco, DM, CerevD, CKD, other_conditions
+            ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
         """, (
-            row.emp_id, row.HT, row.HeartDisease, row.Pscyco,
-            row.DM, row.CerevD, row.CKD
+            row.emp_id, row.HT,
+            row.HeartDisease, row.Pscyco,
+            row.DM, row.CerevD, row.CKD,
+            row.other_conditions if pd.notna(row.other_conditions) else None
         ))
     print("✅ EMPLOYEE_HEALTH 삽입 완료")
 
@@ -66,10 +68,10 @@ def insert_device(cursor):
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO DEVICE (
-                device_id, product, manager_id
-            ) VALUES (%s, %s, %s)
+                device_id, product, manager_id, emp_id
+            ) VALUES (%s, %s, %s, %s)
         """, (
-            row['device_id'], row['product'], row['manager_id']
+            row['device_id'], row['product'], row['manager_id'], row['emp_id']
         ))
     print("✅ DEVICE 삽입 완료")
 

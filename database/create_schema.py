@@ -32,7 +32,9 @@ CREATE TABLE EMPLOYEE (
     birth DATE,
     gender VARCHAR(10),
     age INT,
-    picture VARCHAR(255)
+    picture VARCHAR(255),
+    password VARCHAR(12),
+    CHECK (CHAR_LENGTH(password) BETWEEN 4 AND 12)
 );
 
 CREATE TABLE ADMIN (
@@ -48,6 +50,7 @@ CREATE TABLE EMPLOYEE_HEALTH (
     DM BOOLEAN,
     CerevD BOOLEAN,
     CKD BOOLEAN,
+    other_conditions VARCHAR(255),
     FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id)
 );
 
@@ -63,7 +66,9 @@ CREATE TABLE DEVICE (
     device_id CHAR(10) PRIMARY KEY,
     product VARCHAR(100),
     manager_id CHAR(10),
-    FOREIGN KEY (manager_id) REFERENCES EMPLOYEE(emp_id)
+    emp_id CHAR(10),
+    FOREIGN KEY (manager_id) REFERENCES EMPLOYEE(emp_id),
+    FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id)
 );
 
 CREATE TABLE EMPLOYEE_ATTENDANCE (

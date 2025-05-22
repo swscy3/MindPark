@@ -17,7 +17,7 @@ class Employee(db.Model):
     gender = db.Column(db.String(10))
     age = db.Column(db.Integer)
     picture = db.Column(db.String(255))
-    password = db.Column(db.String(255))  # 새로 추가된 비밀번호 필드
+    password = db.Column(db.String(255))
     
     # 관계는 각 관련 모델에서 정의됨
     
@@ -67,10 +67,12 @@ class Device(db.Model):
     device_id = db.Column(db.String(10), primary_key=True)
     product = db.Column(db.String(100))
     manager_id = db.Column(db.String(10), db.ForeignKey('ADMIN.admin_id'))
+    emp_id = db.Column(db.String(10), db.ForeignKey('EMPLOYEE.emp_id'))  # 직원 ID 외래 키 추가
     
     # 관계 설정
     managements = db.relationship('DeviceManagement', backref='device', cascade='all, delete-orphan')
     measurements = db.relationship('DeviceMeasurement', backref='device', cascade='all, delete-orphan')
+    employee = db.relationship('Employee', backref='devices')  # Employee와의 관계 추가
     
     def __repr__(self):
         return f'<Device {self.device_id}: {self.product}>'
