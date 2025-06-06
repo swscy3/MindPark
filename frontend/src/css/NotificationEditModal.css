@@ -37,3 +37,13 @@
   align-items: center;
   color: #546e7a;
 }
+
+/* 읽기 전용 필드 스타일 */
+.v-text-field--readonly input {
+  background-color: #f5f5f5;
+  color: #666;
+}
+
+.v-text-field--readonly .v-field__outline {
+  border-color: #ddd;
+}

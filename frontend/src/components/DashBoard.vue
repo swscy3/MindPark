@@ -24,24 +24,23 @@
       <!-- 지도 섹션 -->
       <MapSection ref="mapSection" />
     </div>
-    <!-- 마지막 Row -->
-    <div class="bottom-row">
-      <!-- 그래프 섹션 -->
-      <div class="graph-container">
-        <StatisticsGraph 
-          title="금일 작업자 현황"
-          ref="attendanceChart"
-          :labels="['예정', '출근', '결근']"
-          :values="[workerStats.planned, workerStats.present, workerStats.absent]"
-        />
-        <StatisticsGraph 
-          title="위험 등급별 작업자 현황"
-          ref="riskChart"
-          :labels="['A등급', 'B등급', 'C등급']"
-          :values="[riskStats.gradeA, riskStats.gradeB, riskStats.gradeC]"
+    
+    <!-- 차트 섹션 - 바이오메트릭과 온열질환자/낙상자 통계 나란히 -->
+    <div class="charts-section">
+      <div class="chart-left">
+        <BiometricRiskChart 
+          title="현재 작업자 위험도 분포"
+          :total-workers="80"
+          :refresh-interval="10000"
         />
       </div>
-      <!-- 디바이스 정보 섹션 -->
+      <div class="chart-right">
+        <WeeklyStats />
+      </div>
+    </div>
+    
+    <!-- 디바이스 정보 섹션 -->
+    <div class="device-section">
       <DeviceInfo 
         :device-stats="deviceStats"
         @navigate="$emit('navigate', $event)"
@@ -53,16 +52,18 @@
 <script>
 import RiskWorkersTable from './RiskWorkersTable.vue';
 import MapSection from './MapSection.vue';
-import StatisticsGraph from './StatisticsGraph.vue';
 import DeviceInfo from './DeviceInfo.vue';
+import BiometricRiskChart from './BiometricRiskChart.vue';
+import WeeklyStats from './WeeklyStats.vue';
 
 export default {
   name: 'Dashboard',
   components: {
     RiskWorkersTable,
     MapSection,
-    StatisticsGraph,
-    DeviceInfo
+    DeviceInfo,
+    BiometricRiskChart,
+    WeeklyStats
   },
   props: {
     riskWorkersData: {
@@ -126,10 +127,9 @@ export default {
       console.log('차트 초기화');
     },
     loadMap() {
-      // 지도 로드 로직
-      if (this.$refs.mapSection) {
+      if (this.$refs.mapSection && this.$refs.mapSection.refreshData) {
         try {
-          this.$refs.mapSection.loadMap();
+          this.$refs.mapSection.refreshData();
         } catch (e) {
           console.error('지도 로드 중 오류:', e);
         }

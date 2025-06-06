@@ -15,7 +15,6 @@
           <div class="stat-value warning">{{ deviceStats.inactive || 0 }}개</div>
         </div>
       </div>
-      <button @click="$emit('navigate', 'devicemanagement')" class="btn-primary">장비 관리</button>
     </div>
   </template>
   

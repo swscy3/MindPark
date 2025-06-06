@@ -1,130 +1,157 @@
 .top-bar {
-  display: flex;
-  flex-wrap: wrap;
-  background-color: #2c3e50;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 12px 10px; /* 패딩 축소 */
-  margin-bottom: 16px; /* 여백 축소 */
-  height: auto; /* 높이 자동 조정 */
+ display: flex;
+ flex-wrap: wrap;
+ background-color: #2c3e50;
+ border-radius: 8px;
+ box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+ padding: 12px 10px; /* 패딩 축소 */
+ margin-bottom: 16px; /* 여백 축소 */
+ height: auto; /* 높이 자동 조정 */
 }
 
 /* 각 섹션 공통 스타일 */
 .top-bar__section {
-  flex: 1;
-  min-width: 200px; /* 최소 너비 축소 */
-  padding: 8px; /* 패딩 축소 */
-  border-right: 1px solid #34495e;
+ flex: 1;
+ min-width: 200px; /* 최소 너비 축소 */
+ padding: 8px; /* 패딩 축소 */
+ border-right: 1px solid #34495e;
 }
 
 .top-bar__section:last-child {
-  border-right: none;
+ border-right: none;
 }
 
 /* 관리자 정보 섹션 */
 .admin-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+ display: flex;
+ justify-content: space-between;
+ align-items: center;
 }
 
 .admin-section p {
-  margin: 0;
-  color: white;
-  font-weight: 500;
-  font-size: 16px; /* 글꼴 크기 축소 */
+ margin: 0;
+ color: white;
+ font-weight: 500;
+ font-size: 18px; /* 16px에서 18px로 증가 */
 }
 
 .admin-photo {
-  margin-left: 12px; /* 여백 축소 */
+ margin-left: 8px; /* 12px에서 8px로 살짝 줄임 */
+}
+
+/* v-avatar 크기 조정 - 더 큰 크기로 변경 */
+.admin-photo .v-avatar {
+ width: 80px !important;
+ height: 80px !important;
+}
+
+/* v-avatar 내부 이미지 스타일 */
+.admin-photo .v-avatar .v-img {
+ border-radius: 50%;
+}
+
+/* v-avatar 내부 아이콘 스타일 */
+.admin-photo .v-avatar .v-icon {
+ color: white; /* 파란색에서 하얀색으로 변경 */
+ font-size: 32px; /* 아이콘 크기도 함께 증가 */
 }
 
 /* 날씨 정보 섹션 */
 .weather-section p {
-  margin: 0 0 6px 0; /* 여백 축소 */
-  color: white;
-  font-weight: 500;
-  font-size: 16px; /* 글꼴 크기 축소 */
+ margin: 0 0 6px 0; /* 여백 축소 */
+ color: white;
+ font-weight: 500;
+ font-size: 16px; /* 글꼴 크기 축소 */
 }
 
 .weather-info {
-  background-color: rgba(52, 73, 94, 0.5);
-  padding: 8px; /* 패딩 축소 */
-  border-radius: 6px;
+ background-color: rgba(52, 73, 94, 0.5);
+ padding: 8px; /* 패딩 축소 */
+ border-radius: 6px;
 }
 
 .weather-info p {
-  margin: 4px 0; /* 여백 축소 */
-  color: white;
-  font-weight: normal;
-  font-size: 15px; /* 글꼴 크기 축소 */
+ margin: 4px 0; /* 여백 축소 */
+ color: white;
+ font-weight: normal;
+ font-size: 15px; /* 글꼴 크기 축소 */
 }
 
 .weather-info strong {
-  color: rgb(150, 226, 253);
-  font-size: 15px; /* 글꼴 크기 축소 */
+ color: rgb(150, 226, 253);
+ font-size: 15px; /* 글꼴 크기 축소 */
 }
 
 /* 공지사항 섹션 */
 .notices-section p {
-  margin: 0 0 6px 0; /* 여백 축소 */
-  color: white;
-  font-weight: 500;
-  font-size: 16px; /* 글꼴 크기 축소 */
+ margin: 0 0 6px 0; /* 여백 축소 */
+ color: white;
+ font-weight: 500;
+ font-size: 16px; /* 글꼴 크기 축소 */
 }
 
 .notices-list {
-  max-height: 80px; /* 높이 축소 */
-  overflow-y: auto;
-  background-color: rgba(52, 73, 94, 0.5);
-  border-radius: 6px;
-  padding: 8px; /* 패딩 축소 */
+ max-height: 80px; /* 높이 축소 */
+ overflow-y: auto;
+ background-color: rgba(52, 73, 94, 0.5);
+ border-radius: 6px;
+ padding: 8px; /* 패딩 축소 */
 }
 
 .notice-item {
-  padding: 6px 0; /* 패딩 축소 */
-  border-bottom: 1px solid #34495e;
-  color: white; 
-  font-size: 14px; /* 글꼴 크기 축소 */
+ padding: 6px 0; /* 패딩 축소 */
+ border-bottom: 1px solid #34495e;
+ color: white; 
+ font-size: 14px; /* 글꼴 크기 축소 */
 }
 
 .notice-item:last-child {
-  border-bottom: none;
+ border-bottom: none;
 }
 
 .more-notices {
-  text-align: right;
-  font-size: 13px; /* 글꼴 크기 축소 */
-  color: rgb(150, 226, 253); 
-  cursor: pointer;
-  margin-top: 6px; /* 여백 축소 */
-  font-weight: 500;
+ text-align: right;
+ font-size: 13px; /* 글꼴 크기 축소 */
+ color: rgb(150, 226, 253); 
+ cursor: pointer;
+ margin-top: 6px; /* 여백 축소 */
+ font-weight: 500;
 }
 
 .more-notices:hover {
-  text-decoration: underline;
+ text-decoration: underline;
 }
 
 /* 반응형 디자인 */
 @media (max-width: 768px) {
-  .top-bar {
-    flex-direction: column;
-  }
-  
-  .top-bar__section {
-    flex: auto;
-    width: 100%;
-    border-right: none;
-    border-bottom: 1px solid #34495e; 
-    padding: 12px 0; /* 패딩 축소 */
-  }
-  
-  .top-bar__section:last-child {
-    border-bottom: none;
-  }
-  
-  .weather-info p,
-  .notice-item {
-    font-size: 14px; /* 글꼴 크기 축소 */
-  }
+ .top-bar {
+   flex-direction: column;
+ }
+ 
+ .top-bar__section {
+   flex: auto;
+   width: 100%;
+   border-right: none;
+   border-bottom: 1px solid #34495e; 
+   padding: 12px 0; /* 패딩 축소 */
+ }
+ 
+ .top-bar__section:last-child {
+   border-bottom: none;
+ }
+ 
+ .weather-info p,
+ .notice-item {
+   font-size: 14px; /* 글꼴 크기 축소 */
+ }
+ 
+ /* 모바일에서 아바타 크기 축소 */
+ .admin-photo .v-avatar {
+   width: 60px !important;
+   height: 60px !important;
+ }
+ 
+ .admin-photo .v-avatar .v-icon {
+   font-size: 24px; /* 모바일에서 아이콘 크기 축소 */
+ }
 }

@@ -34,12 +34,12 @@
                 <div class="detail-value">{{ worker.vitalSigns.oxygenSaturation }}</div>
               </div>
               <div class="detail-item">
-                <div class="detail-label">혈압</div>
-                <div class="detail-value">{{ worker.vitalSigns.bloodPressure }}</div>
-              </div>
-              <div class="detail-item">
                 <div class="detail-label">체온</div>
                 <div class="detail-value">{{ worker.vitalSigns.bodyTemperature }}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">걸음수</div>
+                <div class="detail-value">{{ worker.vitalSigns.walk }}</div>
               </div>
             </div>
             
@@ -112,8 +112,8 @@ export default {
           vitalSigns: {
             heartRate: '112bpm',
             oxygenSaturation: '90%',
-            bloodPressure: '145mmHg',
-            bodyTemperature: '38.5°C'
+            bodyTemperature: '38.5°C',
+            walk: '12,000'
           },
           device: {
             name: '스마트워치 A',
@@ -131,8 +131,8 @@ export default {
           vitalSigns: {
             heartRate: '110bpm',
             oxygenSaturation: '92%',
-            bloodPressure: '135mmHg',
-            bodyTemperature: '38.2°C'
+            bodyTemperature: '38.2°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -150,8 +150,8 @@ export default {
           vitalSigns: {
             heartRate: '115bpm',
             oxygenSaturation: '91%',
-            bloodPressure: '140mmHg',
-            bodyTemperature: '38.7°C'
+            bodyTemperature: '38.7°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -169,8 +169,8 @@ export default {
           vitalSigns: {
             heartRate: '105bpm',
             oxygenSaturation: '92%',
-            bloodPressure: '138mmHg',
-            bodyTemperature: '38.0°C'
+            bodyTemperature: '38.0°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -188,8 +188,8 @@ export default {
           vitalSigns: {
             heartRate: '112bpm',
             oxygenSaturation: '90%',
-            bloodPressure: '145mmHg',
-            bodyTemperature: '38.5°C'
+            bodyTemperature: '38.5°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -207,8 +207,8 @@ export default {
           vitalSigns: {
             heartRate: '108bpm',
             oxygenSaturation: '91%',
-            bloodPressure: '142mmHg',
-            bodyTemperature: '38.3°C'
+            bodyTemperature: '38.3°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -226,8 +226,8 @@ export default {
           vitalSigns: {
             heartRate: '114bpm',
             oxygenSaturation: '89%',
-            bloodPressure: '148mmHg',
-            bodyTemperature: '38.9°C'
+            bodyTemperature: '38.9°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -245,8 +245,8 @@ export default {
           vitalSigns: {
             heartRate: '107bpm',
             oxygenSaturation: '91%',
-            bloodPressure: '140mmHg',
-            bodyTemperature: '38.4°C'
+            bodyTemperature: '38.4°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -264,8 +264,8 @@ export default {
           vitalSigns: {
             heartRate: '113bpm',
             oxygenSaturation: '90%',
-            bloodPressure: '146mmHg',
-            bodyTemperature: '38.6°C'
+            bodyTemperature: '38.6°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -283,8 +283,8 @@ export default {
           vitalSigns: {
             heartRate: '118bpm',
             oxygenSaturation: '88%',
-            bloodPressure: '150mmHg',
-            bodyTemperature: '38.8°C'
+            bodyTemperature: '38.8°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -302,8 +302,8 @@ export default {
           vitalSigns: {
             heartRate: '106bpm',
             oxygenSaturation: '90%',
-            bloodPressure: '144mmHg',
-            bodyTemperature: '38.3°C'
+            bodyTemperature: '38.3°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -321,8 +321,8 @@ export default {
           vitalSigns: {
             heartRate: '110bpm',
             oxygenSaturation: '89%',
-            bloodPressure: '147mmHg',
-            bodyTemperature: '38.7°C'
+            bodyTemperature: '38.7°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 C',
@@ -340,8 +340,8 @@ export default {
           vitalSigns: {
             heartRate: '108bpm',
             oxygenSaturation: '91%',
-            bloodPressure: '139mmHg',
-            bodyTemperature: '38.1°C'
+            bodyTemperature: '38.1°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -359,8 +359,8 @@ export default {
           vitalSigns: {
             heartRate: '115bpm',
             oxygenSaturation: '90%',
-            bloodPressure: '143mmHg',
-            bodyTemperature: '38.4°C'
+            bodyTemperature: '38.4°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -380,8 +380,8 @@ export default {
           vitalSigns: {
             heartRate: '88bpm',
             oxygenSaturation: '97%',
-            bloodPressure: '120mmHg',
-            bodyTemperature: '37.1°C'
+            bodyTemperature: '37.1°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 C',
@@ -399,8 +399,8 @@ export default {
           vitalSigns: {
             heartRate: '95bpm',
             oxygenSaturation: '94%',
-            bloodPressure: '125mmHg',
-            bodyTemperature: '37.5°C'
+            bodyTemperature: '37.5°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -418,8 +418,8 @@ export default {
           vitalSigns: {
             heartRate: '92bpm',
             oxygenSaturation: '93%',
-            bloodPressure: '130mmHg',
-            bodyTemperature: '37.4°C'
+            bodyTemperature: '37.4°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -437,8 +437,8 @@ export default {
           vitalSigns: {
             heartRate: '94bpm',
             oxygenSaturation: '94%',
-            bloodPressure: '128mmHg',
-            bodyTemperature: '37.3°C'
+            bodyTemperature: '37.3°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -456,8 +456,8 @@ export default {
           vitalSigns: {
             heartRate: '93bpm',
             oxygenSaturation: '94%',
-            bloodPressure: '127mmHg',
-            bodyTemperature: '37.4°C'
+            bodyTemperature: '37.4°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -475,8 +475,8 @@ export default {
           vitalSigns: {
             heartRate: '90bpm',
             oxygenSaturation: '93%',
-            bloodPressure: '131mmHg',
-            bodyTemperature: '37.3°C'
+            bodyTemperature: '37.3°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -494,8 +494,8 @@ export default {
           vitalSigns: {
             heartRate: '92bpm',
             oxygenSaturation: '94%',
-            bloodPressure: '126mmHg',
-            bodyTemperature: '37.2°C'
+            bodyTemperature: '37.2°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -513,8 +513,8 @@ export default {
           vitalSigns: {
             heartRate: '95bpm',
             oxygenSaturation: '92%',
-            bloodPressure: '133mmHg',
-            bodyTemperature: '37.6°C'
+            bodyTemperature: '37.6°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -532,8 +532,8 @@ export default {
           vitalSigns: {
             heartRate: '91bpm',
             oxygenSaturation: '93%',
-            bloodPressure: '129mmHg',
-            bodyTemperature: '37.3°C'
+            bodyTemperature: '37.3°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -551,8 +551,8 @@ export default {
           vitalSigns: {
             heartRate: '89bpm',
             oxygenSaturation: '94%',
-            bloodPressure: '124mmHg',
-            bodyTemperature: '37.0°C'
+            bodyTemperature: '37.0°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 C',
@@ -570,8 +570,8 @@ export default {
           vitalSigns: {
             heartRate: '87bpm',
             oxygenSaturation: '95%',
-            bloodPressure: '122mmHg',
-            bodyTemperature: '37.2°C'
+            bodyTemperature: '37.2°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 A',
@@ -589,8 +589,8 @@ export default {
           vitalSigns: {
             heartRate: '93bpm',
             oxygenSaturation: '93%',
-            bloodPressure: '127mmHg',
-            bodyTemperature: '37.4°C'
+            bodyTemperature: '37.4°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 B',
@@ -608,8 +608,8 @@ export default {
           vitalSigns: {
             heartRate: '88bpm',
             oxygenSaturation: '96%',
-            bloodPressure: '123mmHg',
-            bodyTemperature: '37.1°C'
+            bodyTemperature: '37.1°C',
+            walk: '15000'
           },
           device: {
             name: '스마트워치 C',

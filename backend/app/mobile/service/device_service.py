@@ -37,8 +37,8 @@ class DeviceService:
                 "gyro_x": data.get("gyro_x"),
                 "gyro_y": data.get("gyro_y"),
                 "gyro_z": data.get("gyro_z"),
-                "latitude": data.get("latitude"),
-                "latitude": data.get("latitude"),
+                "loc_x": data.get("loc_x"),
+                "loc_y": data.get("loc_y"),
                 "measure_time": current_time.isoformat()
             }
 

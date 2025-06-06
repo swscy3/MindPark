@@ -8,15 +8,19 @@
       :items-per-page="-1"
       hide-default-footer
     >
-      <template v-slot:item.title="{ item }">
-        <div class="title-cell">
+      <template v-slot:item.serialNumber="{ index }">
+        {{ index + 1 }}
+      </template>
+      
+      <template v-slot:item.symptom="{ item }">
+        <div class="symptom-cell">
           <v-badge
             v-if="item.isNew"
             color="error"
             dot
             inline
           ></v-badge>
-          <span :class="{ 'new-notification': item.isNew }">{{ item.title }}</span>
+          <span :class="{ 'new-notification': item.isNew }">{{ item.symptom }}</span>
         </div>
       </template>
       
@@ -24,13 +28,17 @@
         {{ formatDateTime(item.createdAt) }}
       </template>
       
-      <template v-slot:item.status="{ item }">
+      <template v-slot:item.updatedAt="{ item }">
+        {{ item.updatedAt ? formatDateTime(item.updatedAt) : '-' }}
+      </template>
+      
+      <template v-slot:item.editStatus="{ item }">
         <v-chip
-          :color="getStatusColor(item.status)"
+          :color="getEditStatusColor(item.editStatus)"
           text-color="white"
           size="small"
         >
-          {{ item.status }}
+          {{ item.editStatus }}
         </v-chip>
       </template>
       
@@ -82,30 +90,51 @@ export default {
     return {
       headers: [
         {
-          title: '제목',
-          key: 'title',
-          width: '30%'
+          title: '일련번호',
+          key: 'serialNumber',
+          width: '8%',
+          sortable: false
         },
         {
-          title: '내용',
-          key: 'content',
-          width: '40%'
-        },
-        {
-          title: '발생 시간',
-          key: 'createdAt',
-          width: '15%'
-        },
-        {
-          title: '상태',
-          key: 'status',
+          title: '사번',
+          key: 'employeeId',
           width: '10%'
         },
         {
-          title: '관리',
+          title: '이름',
+          key: 'name',
+          width: '10%'
+        },
+        {
+          title: '증상',
+          key: 'symptom',
+          width: '20%'
+        },
+        {
+          title: '발생시간',
+          key: 'createdAt',
+          width: '12%'
+        },
+        {
+          title: '처치내용',
+          key: 'treatment',
+          width: '20%'
+        },
+        {
+          title: '업데이트시간',
+          key: 'updatedAt',
+          width: '12%'
+        },
+        {
+          title: '수정상태',
+          key: 'editStatus',
+          width: '8%'
+        },
+        {
+          title: '수정버튼',
           key: 'actions',
           sortable: false,
-          width: '5%'
+          width: '8%'
         }
       ]
     };
@@ -125,16 +154,14 @@ export default {
       return `${year}-${month}-${day} ${hours}:${minutes}`;
     },
     
-    getStatusColor(status) {
-      switch (status) {
-        case '처리 중':
+    getEditStatusColor(editStatus) {
+      switch (editStatus) {
+        case '처치중':
           return 'warning';
-        case '완료':
+        case '처치 완료':
           return 'success';
-        case '보류':
-          return 'grey';
         default:
-          return 'grey';
+          return 'warning';
       }
     },
     

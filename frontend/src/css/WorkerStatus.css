@@ -29,14 +29,14 @@ body {
   background-color: white;
   padding: 15px 30px;
   border: 1px solid #ddd;
-  width: 300px;
+  flex: 0 0 calc(20% - 10px); /* 2개 탭이므로 각각 40% */
   text-align: center;
   font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  border-radius: 8px; /* 둥근 모서리 추가 */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 약간의 그림자 추가 */
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .tab.active {

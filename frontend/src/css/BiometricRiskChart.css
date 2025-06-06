@@ -1,0 +1,300 @@
+.biometric-risk-chart {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fbff 100%);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(30, 144, 255, 0.1);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  min-height: 320px;
+  position: relative;
+  overflow: hidden;
+}
+
+.biometric-risk-chart::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(30, 144, 255, 0.05) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.biometric-risk-chart h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1e3a8a;
+  text-align: center;
+  padding-bottom: 10px;
+  font-family: 'Noto Sans KR', sans-serif;
+  position: relative;
+  z-index: 1;
+}
+
+.biometric-risk-chart h3::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+  border-radius: 2px;
+}
+
+.chart-container {
+  flex: 1;
+  position: relative;
+  min-height: 200px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.1));
+}
+
+/* 도넛 차트 중앙 텍스트 */
+.center-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.total-count {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e3a8a;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.total-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* 새로운 범례 스타일 - 완전히 독립적 */
+.biometric-risk-chart .chart-legend {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+  padding: 20px 16px 0;
+  border-top: 2px solid rgba(30, 144, 255, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.biometric-risk-chart .chart-legend .legend-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  border: 1px solid rgba(30, 144, 255, 0.1);
+  cursor: default;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+
+.biometric-risk-chart .chart-legend .legend-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  border-color: rgba(30, 144, 255, 0.3);
+}
+
+.biometric-risk-chart .chart-legend .legend-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+
+.biometric-risk-chart .chart-legend .legend-color::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+}
+
+.biometric-risk-chart .chart-legend .legend-color.normal {
+  background: linear-gradient(135deg, #4ade80, #22c55e);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.biometric-risk-chart .chart-legend .legend-color.caution {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.biometric-risk-chart .chart-legend .legend-color.danger {
+  background: linear-gradient(135deg, #f87171, #ef4444);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.biometric-risk-chart .chart-legend .legend-text {
+  font-weight: 600;
+  font-size: 14px;
+  color: #374151;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.biometric-risk-chart .chart-legend .legend-percent {
+  font-weight: 800;
+  font-size: 16px;
+  color: #1e3a8a;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+/* 에러 메시지 */
+.error-message {
+  background: linear-gradient(135deg, #fef2f2, #fee2e2);
+  border: 1px solid #fca5a5;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+  color: #dc2626;
+  font-size: 14px;
+  text-align: center;
+  font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 500;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .biometric-risk-chart {
+    padding: 20px;
+    min-height: 380px;
+  }
+  
+  .biometric-risk-chart h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+  
+  .chart-container {
+    min-height: 240px;
+    margin-bottom: 20px;
+  }
+  
+  .total-count {
+    font-size: 2rem;
+  }
+  
+  .total-label {
+    font-size: 0.8rem;
+  }
+  
+  .biometric-risk-chart .chart-legend {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-item {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px 16px;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-color {
+    width: 20px;
+    height: 20px;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-text {
+    font-size: 13px;
+    flex: 1;
+    text-align: left;
+    margin-left: 12px;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-percent {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .biometric-risk-chart {
+    padding: 16px;
+    min-height: 360px;
+  }
+  
+  .chart-container {
+    min-height: 220px;
+  }
+  
+  .total-count {
+    font-size: 1.8rem;
+  }
+  
+  .biometric-risk-chart .chart-legend {
+    gap: 10px;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-item {
+    padding: 10px 14px;
+  }
+}
+
+/* 접근성 향상 */
+@media (prefers-reduced-motion: reduce) {
+  .biometric-risk-chart .chart-legend .legend-item:hover {
+    transform: none;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-item {
+    transition: none;
+  }
+}
+
+/* 고대비 모드 */
+@media (prefers-contrast: high) {
+  .biometric-risk-chart {
+    background: #ffffff;
+    border: 2px solid #000000;
+  }
+  
+  .biometric-risk-chart h3 {
+    color: #000000;
+  }
+  
+  .biometric-risk-chart .chart-legend .legend-item {
+    background: #ffffff;
+    border: 1px solid #000000;
+  }
+}

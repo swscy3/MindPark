@@ -20,40 +20,50 @@
       <v-divider></v-divider>
       
       <v-card-text class="edit-modal-content">
-        <v-form ref="form" v-model="valid">
+        <div class="form-container">
           <v-text-field
-            v-model="editedNotification.title"
-            label="제목"
+            v-model="editedNotification.employeeId"
+            label="사번"
             outlined
             dense
-            :rules="[v => !!v || '제목은 필수 입력 항목입니다.']"
+            readonly
+            class="mb-4"
+          ></v-text-field>
+          
+          <v-text-field
+            v-model="editedNotification.name"
+            label="이름"
+            outlined
+            dense
+            readonly
+            class="mb-4"
+          ></v-text-field>
+          
+          <v-text-field
+            v-model="editedNotification.symptom"
+            label="증상"
+            outlined
+            dense
+            readonly
             class="mb-4"
           ></v-text-field>
           
           <v-textarea
-            v-model="editedNotification.content"
-            label="내용"
+            v-model="editedNotification.treatment"
+            label="처치내용"
             outlined
-            :rules="[v => !!v || '내용은 필수 입력 항목입니다.']"
+            placeholder="응급상황에 대한 처치 내용을 입력하세요"
             class="mb-4"
           ></v-textarea>
           
           <v-select
-            v-model="editedNotification.status"
-            :items="statusOptions"
-            label="상태"
+            v-model="editedNotification.editStatus"
+            :items="editStatusOptions"
+            label="수정상태"
             outlined
             dense
             class="mb-4"
           ></v-select>
-          
-          <v-textarea
-            v-model="editedNotification.action"
-            label="조치 내용"
-            outlined
-            placeholder="위급 상황에 대한 조치 내용을 입력하세요"
-            class="mb-4"
-          ></v-textarea>
           
           <div class="edit-history" v-if="editedNotification.updatedAt">
             <div class="edit-history-title">수정 이력</div>
@@ -62,7 +72,7 @@
               최종 수정일: {{ formatDateTime(editedNotification.updatedAt) }}
             </div>
           </div>
-        </v-form>
+        </div>
       </v-card-text>
       
       <v-divider></v-divider>
@@ -78,7 +88,6 @@
         </v-btn>
         <v-btn
           color="primary"
-          :disabled="!valid"
           @click="saveNotification"
         >
           저장
@@ -106,9 +115,12 @@ export default {
   data() {
     return {
       dialogVisible: this.show,
-      valid: true,
-      editedNotification: { ...this.notification },
-      statusOptions: ['처리 중', '완료', '보류']
+      editedNotification: { 
+        ...this.notification,
+        treatment: this.notification.treatment || '',
+        editStatus: this.notification.editStatus || '처치중'
+      },
+      editStatusOptions: ['처치중', '처치 완료']
     };
   },
   
@@ -118,7 +130,11 @@ export default {
     },
     
     notification(newValue) {
-      this.editedNotification = { ...newValue };
+      this.editedNotification = { 
+        ...newValue,
+        treatment: newValue.treatment || '',
+        editStatus: newValue.editStatus || '처치중'
+      };
     }
   },
   
@@ -128,9 +144,7 @@ export default {
     },
     
     saveNotification() {
-      if (this.$refs.form.validate()) {
-        this.$emit('save', this.editedNotification);
-      }
+      this.$emit('save', this.editedNotification);
     },
     
     formatDateTime(dateTime) {

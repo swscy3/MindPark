@@ -1,135 +1,254 @@
-.map-section {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    padding: 16px;
-    height: 100%;
+.heat-map-container {
+  width: 100%;
+  height: 560px;
+  /* padding: 20px; */
+  background: transparent; /* 바깥쪽 하늘색 배경 제거 */
+  overflow: hidden;
+}
+
+.map-card {
+  height: calc(100% - 0px);
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(33, 150, 243, 0.15) !important;
+  overflow: hidden;
+}
+
+.map-title {
+  background: linear-gradient(135deg, #42a5f5 0%, #2196f3 100%);
+  color: white !important;
+  padding: 12px 20px !important;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.map-title h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.legend {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: white;
+}
+
+.legend-marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.legend-marker.danger {
+  background-color: #ff4444;
+}
+
+.legend-marker.caution {
+  background-color: #ffaa00;
+}
+
+.map-content {
+  padding: 0 !important;
+  height: calc(100% - 60px);
+}
+
+.map-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* 지도 ID에 직접 스타일 적용 */
+#map {
+  border-radius: 0 0 16px 16px !important;
+  overflow: hidden !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Leaflet 지도 자체에 둥근 모서리 적용 */
+.map-container .leaflet-container {
+  border-radius: 0 0 16px 16px;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* 커스텀 마커 스타일 - 깔끔한 원형 */
+.custom-marker {
+  background: transparent;
+  border: none;
+}
+
+.marker-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+}
+
+.marker-inner {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* 마커 팝업 스타일 */
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  border: none;
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  padding: 0;
+}
+
+.marker-popup {
+  padding: 16px;
+  min-width: 200px;
+}
+
+.marker-popup h3 {
+  margin: 0 0 12px 0;
+  color: #1976d2;
+  font-size: 18px;
+  font-weight: 600;
+  border-bottom: 2px solid #e3f2fd;
+  padding-bottom: 8px;
+}
+
+.popup-info p {
+  margin: 8px 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.popup-info strong {
+  color: #1565c0;
+  font-weight: 600;
+}
+
+.risk-danger {
+  color: #ff4444;
+  font-weight: 600;
+  background: rgba(255, 68, 68, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.risk-caution {
+  color: #ffaa00;
+  font-weight: 600;
+  background: rgba(255, 170, 0, 0.1);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+/* 마커 클러스터 스타일 커스터마이징 */
+.marker-cluster-small {
+  background-color: rgba(25, 118, 210, 0.8) !important;
+  border: 3px solid white !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.marker-cluster-small div {
+  background-color: rgba(25, 118, 210, 0.9) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.marker-cluster-medium {
+  background-color: rgba(21, 101, 192, 0.8) !important;
+  border: 3px solid white !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.marker-cluster-medium div {
+  background-color: rgba(21, 101, 192, 0.9) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.marker-cluster-large {
+  background-color: rgba(13, 71, 161, 0.8) !important;
+  border: 3px solid white !important;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2) !important;
+}
+
+.marker-cluster-large div {
+  background-color: rgba(13, 71, 161, 0.9) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+/* 지도 컨트롤 버튼 스타일 */
+.leaflet-bar a {
+  background-color: white !important;
+  border: 2px solid #1976d2 !important;
+  color: #1976d2 !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #1976d2 !important;
+  color: white !important;
+}
+
+/* 팝업 화살표 스타일 */
+.leaflet-popup-tip {
+  background: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .heat-map-container {
+    padding: 10px;
+    height: 500px;
   }
   
-  .map-section h3 {
-    color: #096dd9;
-    margin-top: 0;
-    margin-bottom: 16px;
+  .map-card {
+    height: calc(100% - 0px);
   }
   
-  .map-container {
-    height: 400px;
-    background-color: #f0f5ff;
-    border-radius: 4px;
-    padding: 12px;
+  .map-title {
+    padding: 10px 16px !important;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start;
   }
   
-  .construction-map {
-    position: relative;
-    height: 100%;
-    background-color: white;
-    border: 1px solid #d9d9d9;
-    border-radius: 4px;
-    overflow: hidden;
+  .map-title h2 {
+    font-size: 16px;
   }
   
-  .map-grid {
-    position: relative;
-    height: 90%;
-    border: 1px dashed #d9d9d9;
-    margin: 10px;
-  }
-  
-  .map-area {
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.03);
-    border: 1px dashed #8c8c8c;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #8c8c8c;
-  }
-  
-  .area-a {
-    top: 10%;
-    left: 10%;
-    width: 35%;
-    height: 35%;
-  }
-  
-  .area-b {
-    top: 10%;
-    right: 10%;
-    width: 35%;
-    height: 35%;
-  }
-  
-  .area-c {
-    bottom: 10%;
-    left: 10%;
-    width: 35%;
-    height: 35%;
-  }
-  
-  .area-d {
-    bottom: 10%;
-    right: 10%;
-    width: 35%;
-    height: 35%;
-  }
-  
-  .worker-marker {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    background-color: #1890ff;
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: bold;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    z-index: 10;
-  }
-  
-  .danger-zone {
-    position: absolute;
-    background-color: rgba(255, 77, 79, 0.2);
-    border: 2px dashed rgba(255, 77, 79, 0.6);
-    border-radius: 4px;
-    z-index: 5;
-  }
-  
-  .map-legend {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
-    background-color: white;
-    padding: 6px 10px;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    font-size: 12px;
+  .legend {
+    gap: 12px;
   }
   
   .legend-item {
-    display: flex;
-    align-items: center;
-    margin-bottom: 4px;
+    font-size: 12px;
   }
-  
-  .worker-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: #1890ff;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-  
-  .danger-dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    background-color: rgba(255, 77, 79, 0.6);
-    border-radius: 2px;
-    margin-right: 6px;
-  }
+}

@@ -98,10 +98,10 @@ CREATE TABLE DEVICE_MEASUREMENT (
     gyro_x FLOAT,
     gyro_y FLOAT,
     gyro_z FLOAT,
-    latitude FLOAT,
-    longitude FLOAT,
-    heat_risk FLOAT,
-    fall_risk FLOAT,
+    loc_x FLOAT, 
+    loc_y FLOAT,
+    heat_risk VARCHAR(5),
+    fall_risk VARCHAR(5),
     FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id),
     FOREIGN KEY (device_id) REFERENCES DEVICE(device_id)
 );

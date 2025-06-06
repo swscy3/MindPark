@@ -1,0 +1,74 @@
+/* 전체적인 푸른 계열 테마 적용 */
+.notice-table {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 100, 255, 0.1);
+}
+
+/* 검색 필드 스타일 */
+.search-field, .search-type {
+  border-radius: 6px;
+}
+
+/* 테이블 헤더 스타일 */
+.v-data-table-header {
+  background-color: #e6f0ff !important;
+}
+
+.v-data-table-header th {
+  font-weight: 600 !important;
+  color: #1a56db !important;
+}
+
+/* 핀 아이콘 스타일 */
+.pin-icon {
+  transform: rotate(45deg);
+}
+
+/* 번호 셀 스타일 */
+.number-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 제목 셀 스타일 */
+.title-cell {
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 8px 0;
+  color: #000000;
+}
+
+.title-cell:hover {
+  color: #1a56db;
+  text-decoration: underline;
+}
+
+/* 읽은 공지사항 스타일 */
+.read {
+  color: #9ca3af !important;
+}
+
+/* 중요 공지사항 스타일 */
+.v-data-table tbody tr:has(.pin-icon) {
+  background-color: #fff0f3 !important;
+}
+
+/* 다이얼로그 스타일 */
+.dialog-title {
+  background-color: #e6f0ff;
+  color: #1a56db;
+}
+
+.dialog-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  padding-top: 8px;
+}
+
+.dialog-content {
+  padding: 24px;
+  min-height: 200px;
+  white-space: pre-line;
+}

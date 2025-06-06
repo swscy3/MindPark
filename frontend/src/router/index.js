@@ -5,6 +5,7 @@ import WorkerStatusView from '../view/WorkerStatusView.vue'
 import WorkerSearchView from '../view/WorkerSearchView.vue'
 import NotificationLogView from '../view/NotificationLogView.vue'
 import ResponseManualView from '../view/ResponseManualView.vue'
+import NoticesView from '../view/NoticesView.vue'
 
 const routes = [
   // 로그인 라우트
@@ -47,6 +48,13 @@ const routes = [
     path: '/responsemanual',
     name: 'ResponseManual',
     component: ResponseManualView
+  },
+
+    // 공지사항
+  {
+    path: '/notices',
+    name: 'Notices',
+    component: NoticesView
   }
 ]
 

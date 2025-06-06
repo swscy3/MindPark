@@ -65,12 +65,14 @@ export default {
         setTimeout(() => {
           this.notifications = Array.from({ length: 20 }, (_, i) => ({
             id: i + 1,
-            title: `알림 ${i + 1}`,
-            content: `알림 내용 ${i + 1}`,
+            employeeId: `EMP${String(i + 1).padStart(3, '0')}`,
+            name: `직원${i + 1}`,
+            symptom: `증상 ${i + 1}`,
+            treatment: `처치내용 ${i + 1}`,
             createdAt: new Date(Date.now() - i * 86400000).toISOString(),
+            updatedAt: i < 10 ? new Date(Date.now() - i * 43200000).toISOString() : null,
             isNew: i < 5,
-            status: i < 10 ? '처리 중' : '완료',
-            action: i < 10 ? '조치 필요' : '조치 완료'
+            editStatus: i < 15 ? '처치중' : '처치 완료'
           }));
           
           // 최신순 정렬 (오래된 것이 뒤로)
@@ -113,8 +115,10 @@ export default {
       if (this.filters.keyword) {
         const keyword = this.filters.keyword.toLowerCase();
         result = result.filter(item => 
-          item.title.toLowerCase().includes(keyword) || 
-          item.content.toLowerCase().includes(keyword)
+          item.employeeId.toLowerCase().includes(keyword) ||
+          item.name.toLowerCase().includes(keyword) ||
+          item.symptom.toLowerCase().includes(keyword) || 
+          item.treatment.toLowerCase().includes(keyword)
         );
       }
       

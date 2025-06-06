@@ -10,6 +10,7 @@
           <th>사원명</th>
           <th>체온</th>
           <th>심박수</th>
+          <th>호흡수</th>
           <th>위험도</th>
         </tr>
       </thead>
@@ -18,6 +19,7 @@
           <td>{{ worker.name }}</td>
           <td>{{ worker.temp }}°C</td>
           <td>{{ worker.hr }}bpm</td>
+          <td>{{ worker.rr }}rpm</td>
           <td>
             <div class="risk-level-badge" :class="getRiskClass(worker.riskLevel)">
               {{ worker.riskLevel }}
@@ -25,7 +27,7 @@
           </td>
         </tr>
         <tr v-if="displayWorkers.length === 0">
-          <td colspan="4" class="no-data">표시할 데이터가 없습니다.</td>
+          <td colspan="5" class="no-data">표시할 데이터가 없습니다.</td>
         </tr>
       </tbody>
     </table>
@@ -76,6 +78,7 @@ export default {
           name: '신정우',
           temp: 37.2,
           hr: 81,
+          rr: 18,
           riskLevel: '위험',
           department: '토목팀',
           position: '작업반장'
@@ -85,6 +88,7 @@ export default {
           name: '김준호',
           temp: 37.8,
           hr: 92,
+          rr: 22,
           riskLevel: '주의',
           department: '철근팀',
           position: '작업자'
@@ -94,6 +98,7 @@ export default {
           name: '이수민',
           temp: 37.4,
           hr: 88,
+          rr: 20,
           riskLevel: '주의',
           department: '시공팀',
           position: '기사'
@@ -105,6 +110,7 @@ export default {
           name: '박지은',
           temp: 36.8,
           hr: 88,
+          rr: 16,
           riskLevel: '주의',
           department: '전기팀',
           position: '기사'
@@ -114,6 +120,7 @@ export default {
           name: '장민석',
           temp: 36.9,
           hr: 82,
+          rr: 24,
           riskLevel: '위험',
           department: '구조팀',
           position: '작업자'
@@ -126,13 +133,14 @@ export default {
     heatApiWorkers() {
       if (!this.heatApiData) return [];
       
-      const { heat_name, heat_temp, heat_hr, heat_risk } = this.heatApiData;
+      const { heat_name, heat_temp, heat_hr, heat_rr, heat_risk } = this.heatApiData;
       
       return heat_name.map((name, index) => {
         return {
           name: name,
           temp: heat_temp[index],
           hr: heat_hr[index],
+          rr: heat_rr ? heat_rr[index] : 16, // 호흡수가 없으면 기본값 16
           riskLevel: heat_risk[index],
           lat: this.heatApiData.heat_incident_lat ? this.heatApiData.heat_incident_lat[index] : null,
           lng: this.heatApiData.heat_incident_lng ? this.heatApiData.heat_incident_lng[index] : null
@@ -144,13 +152,14 @@ export default {
     fallApiWorkers() {
       if (!this.fallApiData) return [];
       
-      const { fall_name, fall_temp, fall_hr, fall_state } = this.fallApiData;
+      const { fall_name, fall_temp, fall_hr, fall_rr, fall_state } = this.fallApiData;
       
       return fall_name.map((name, index) => {
         return {
           name: name,
           temp: fall_temp[index],
           hr: fall_hr[index],
+          rr: fall_rr ? fall_rr[index] : 16, // 호흡수가 없으면 기본값 16
           riskLevel: this.convertFallStateToRiskLevel(fall_state[index]),
           lat: this.fallApiData.fall_incident_lat ? this.fallApiData.fall_incident_lat[index] : null,
           lng: this.fallApiData.fall_incident_lng ? this.fallApiData.fall_incident_lng[index] : null

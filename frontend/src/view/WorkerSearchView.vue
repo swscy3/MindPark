@@ -2,18 +2,14 @@
   <div class="worker-search">
     <div class="header-container">
       <h1>작업자 조회</h1>
-      
-      <div class="search-container">
-        <input
-          type="text"
-          placeholder="작업자명 또는 사번 입력"
-          v-model="searchTerm"
-        />
-        <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </div>
     </div>
+
+    <SearchBox 
+        v-model="searchTerm"
+        placeholder="작업자명 또는 사번 입력"
+        :show-icon="true"
+        @search="handleSearch"
+      />
     
     <div class="table-container">
       <table>
@@ -42,7 +38,6 @@
             <td>
               <span class="status-badge" :class="{
                 'status-active': worker.status === '출근',
-                'status-absent': worker.status === '결근',
                 'status-leave': worker.status === '휴무'
               }">
                 {{ worker.status }}
@@ -50,7 +45,7 @@
             </td>
             <td>
               <button class="detail-button">
-                세부 내용
+                상세정보
               </button>
             </td>
           </tr>
@@ -90,25 +85,26 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
+import SearchBox from '../components/SearchBox.vue';
 import '../css/WorkerSearch.css';
 
 // Sample worker data
 const workers = ref([
-  { id: 1, name: '신창우', code: '223714', department: '티켓팅', position: '팀장', status: '출근' },
-  { id: 2, name: '박지은', code: '223711', department: '품질관리팀', position: '사원', status: '출근' },
-  { id: 3, name: '정희주', code: '223714', department: '관리팀', position: '사원', status: '휴무' },
-  { id: 4, name: '김민준', code: '223715', department: '개발팀', position: '과장', status: '출근' },
-  { id: 5, name: '이서연', code: '223716', department: '디자인팀', position: '주임', status: '휴무' },
-  { id: 6, name: '최준호', code: '223717', department: '마케팅팀', position: '대리', status: '출근' },
-  { id: 7, name: '강지원', code: '223718', department: '인사팀', position: '사원', status: '출근' },
-  { id: 8, name: '윤소율', code: '223719', department: '회계팀', position: '과장', status: '출근' },
-  { id: 9, name: '장현우', code: '223720', department: '영업팀', position: '대리', status: '휴무' },
-  { id: 10, name: '한미래', code: '223721', department: '기획팀', position: '사원', status: '출근' },
-  { id: 11, name: '오태양', code: '223722', department: '고객지원팀', position: '팀장', status: '출근' },
-  { id: 12, name: '임하늘', code: '223723', department: '연구팀', position: '연구원', status: '휴무' },
-  { id: 13, name: '서은별', code: '223724', department: '품질관리팀', position: '주임', status: '출근' },
-  { id: 14, name: '배도현', code: '223725', department: '생산팀', position: '대리', status: '출근' },
-  { id: 15, name: '홍길동', code: '223726', department: '보안팀', position: '과장', status: '휴무' },
+  { id: 1, name: '신창우', code: '223714', department: '건축', position: '일용직', status: '출근' },
+  { id: 2, name: '박지은', code: '223711', department: '전기', position: '일용직', status: '출근' },
+  { id: 3, name: '정희주', code: '223714', department: '건축', position: '과장', status: '휴무' },
+  { id: 4, name: '김민준', code: '223715', department: '건설', position: '일용직', status: '출근' },
+  { id: 5, name: '이서연', code: '223716', department: '건설', position: '일용직', status: '휴무' },
+  { id: 6, name: '최준호', code: '223717', department: '설비', position: '대리', status: '출근' },
+  { id: 7, name: '강지원', code: '223718', department: '건설', position: '일용직', status: '출근' },
+  { id: 8, name: '윤소율', code: '223719', department: '설비', position: '과장', status: '출근' },
+  { id: 9, name: '장현우', code: '223720', department: '건설', position: '일용직', status: '휴무' },
+  { id: 10, name: '한미래', code: '223721', department: '건설', position: '일용직', status: '출근' },
+  { id: 11, name: '오태양', code: '223722', department: '전기', position: '팀장', status: '출근' },
+  { id: 12, name: '임하늘', code: '223723', department: '건설', position: '일용직', status: '휴무' },
+  { id: 13, name: '서은별', code: '223724', department: '건설', position: '일용직', status: '출근' },
+  { id: 14, name: '배도현', code: '223725', department: '전기', position: '대리', status: '출근' },
+  { id: 15, name: '홍길동', code: '223726', department: '건설', position: '과장', status: '휴무' },
 ]);
 
 const searchTerm = ref('');
@@ -116,6 +112,11 @@ const currentPage = ref(1);
 const pageSize = 10;
 const sortColumn = ref('name');
 const sortOrder = ref('asc');
+
+// 검색 버튼 클릭 또는 엔터키 처리
+const handleSearch = () => {
+  // 현재는 실시간 검색이므로 추가 동작 불필요
+};
 
 // 정렬 기능
 const sortTable = (column) => {

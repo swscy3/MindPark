@@ -65,8 +65,19 @@ export default {
         // 백엔드에서 받은 토큰 확인 및 저장
         if (response.data && response.data.token) {
           console.log('토큰 수신 성공');
+          
           // 토큰 저장
           localStorage.setItem('token', response.data.token);
+          
+          // 사용자 정보 저장
+          if (response.data.admin) {
+            localStorage.setItem('userInfo', JSON.stringify({
+              name: response.data.admin.name,
+              picture: response.data.admin.picture,
+              id: response.data.admin.id
+            }));
+            console.log('사용자 정보 저장 완료:', response.data.admin);
+          }
           
           // 로그인 성공 후 메인 페이지로 이동
           console.log('메인 페이지로 이동');
