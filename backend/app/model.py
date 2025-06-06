@@ -103,16 +103,16 @@ class DeviceMeasurement(db.Model):
     resp = db.Column(db.Integer)  # 호흡수
     spo2 = db.Column(db.Integer)  # 산소포화도
     walk = db.Column(db.Integer)  # 작업 관련 정보
-    latitude = db.Column(db.Float) # 위도
-    longitude = db.Column(db.Float) # 경도
+    loc_x = db.Column(db.Float) # 경도
+    loc_y = db.Column(db.Float) # 위도
     acc_x = db.Column(db.Float)  # x축 가속도
     acc_y = db.Column(db.Float)  # y축 가속도
     acc_z = db.Column(db.Float)  # z축 가속도
     gyro_x = db.Column(db.Float)  # x축 자이로
     gyro_y = db.Column(db.Float)  # y축 자이로
     gyro_z = db.Column(db.Float)  # z축 자이로
-    heat_risk = db.Column(db.Float)  # 온열질환 위험도
-    fall_risk = db.Column(db.Float)  # 낙상 위험도
+    heat_risk = db.Column(db.String(5))  # 온열질환 위험도
+    fall_risk = db.Column(db.String(5))  # 낙상 위험도
     
     
     def __repr__(self):
