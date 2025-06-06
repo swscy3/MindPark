@@ -98,6 +98,8 @@ CREATE TABLE DEVICE_MEASUREMENT (
     gyro_x FLOAT,
     gyro_y FLOAT,
     gyro_z FLOAT,
+    latitude FLOAT,
+    longitude FLOAT,
     heat_risk FLOAT,
     fall_risk FLOAT,
     FOREIGN KEY (emp_id) REFERENCES EMPLOYEE(emp_id),
