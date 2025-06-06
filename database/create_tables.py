@@ -88,6 +88,36 @@ def insert_device_management(cursor):
             row.check_out if pd.notna(row.check_out) else None
         ))
     print("✅ EMPLOYEE_ATTENDANCE 삽입 완료")
+    
+def insert_device_measurement(cursor):
+    df = pd.read_csv('/root/MindPark/database/datafile/device_measurement.csv')
+    for _, row in df.iterrows():
+        cursor.execute("""
+            INSERT INTO DEVICE_MEASUREMENT (
+                measurement_id, emp_id, device_id, measure_time, battery,
+                hr, temp, resp, spo2, walk,
+                acc_x, acc_y, acc_z,
+                gyro_x, gyro_y, gyro_z,
+                loc_x, loc_y,
+                heat_risk, fall_risk
+            ) VALUES (%s, %s, %s, %s, %s,
+                      %s, %s, %s, %s, %s,
+                      %s, %s, %s,
+                      %s, %s, %s,
+                      %s, %s,
+                      %s, %s)
+        """, (
+            row.measurement_id, row.emp_id, row.device_id,
+            row.measure_time if pd.notna(row.measure_time) else None,
+            row.battery,
+            row.hr, row.temp, row.resp, row.spo2, row.walk,
+            row.acc_x, row.acc_y, row.acc_z,
+            row.gyro_x, row.gyro_y, row.gyro_z,
+            row.loc_x if pd.notna(row.loc_x) else None,
+            row.loc_y if pd.notna(row.loc_y) else None,
+            row.heat_risk, row.fall_risk
+        ))
+    print("✅ DEVICE_MEASUREMENT 삽입 완료")
 
 
 def insert_health_anomaly(cursor):
@@ -121,6 +151,7 @@ def main():
         insert_emergency_contact(cursor)
         insert_device(cursor)
         insert_device_management(cursor)
+        insert_device_measurement(cursor)
         insert_health_anomaly(cursor)
 
         conn.commit()
