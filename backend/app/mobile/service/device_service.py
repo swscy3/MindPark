@@ -30,13 +30,15 @@ class DeviceService:
                 "temp": data.get("temp"),
                 "resp": data.get("resp"),
                 "spo2": data.get("spo2"),
+                "walk": data.get("walk"),
                 "acc_x": data.get("acc_x"),
                 "acc_y": data.get("acc_y"),
                 "acc_z": data.get("acc_z"),
                 "gyro_x": data.get("gyro_x"),
                 "gyro_y": data.get("gyro_y"),
                 "gyro_z": data.get("gyro_z"),
-                "walk": data.get("walk"),
+                "latitude": data.get("latitude"),
+                "latitude": data.get("latitude"),
                 "measure_time": current_time.isoformat()
             }
 
