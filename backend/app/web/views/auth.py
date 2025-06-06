@@ -3,6 +3,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime, timezone
 from marshmallow import ValidationError
+import os
 from app.schema import LoginSchema
 from app.model import Employee, Admin, db, TokenBlocklist
 from ..service import AuthService
@@ -37,17 +38,28 @@ def web_login():
         else:
             return jsonify({"error": error_message}), 401
     
-    # 3. 직원 정보 조회 (이름 가져오기)
+    # 3. 직원 정보 조회 (이름, 사진 가져오기)
     employee = Employee.query.filter_by(emp_id=admin.admin_id).first()
     
-    # 4. JWT 토큰 생성
+    # 4. 사진 경로를 웹 URL로 변환
+    picture_url = None
+    if employee and employee.picture:
+        # /root/MindPark/database/picture/woman8 -> woman8
+        filename = os.path.basename(employee.picture)
+        # /uploads/pictures/woman8 형태로 변환
+        picture_url = f"/uploads/pictures/{filename}"
+    
+    # 5. JWT 토큰 생성
     access_token = create_access_token(identity=data['id'])
     
     return jsonify({
         "message": "로그인 성공",
         "token": access_token,
-        "admin": admin.admin_id,
-        "name": employee.name if employee else ""
+        "admin": {
+            "id": admin.admin_id,
+            "name": employee.name if employee else "",
+            "picture": picture_url  # 웹에서 바로 쓸 수 있는 URL
+        }
     }), 200
 
 @web_auth_bp.route('/logout', methods=['POST'])
