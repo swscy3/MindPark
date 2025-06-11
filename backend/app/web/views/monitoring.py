@@ -1,34 +1,42 @@
-# app/web/monitoring.py
-from flask import Blueprint, Response, jsonify, current_app
-from flask_jwt_extended import jwt_required
-from datetime import datetime, timedelta, date
+from flask import Blueprint, Response, jsonify, request
+from flask_jwt_extended import decode_token
+from datetime import datetime, date
 import time
 import json
 import traceback
 
-# Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
 from app import create_app, db
 from app.model import HealthAnomaly, Employee, Device, DeviceMeasurement, DeviceManagement
 
 monitoring_bp = Blueprint('monitoring', __name__)
 
 @monitoring_bp.route('/dashboard/stream')
-@jwt_required()
 def dashboard_stream():
-    """
-    대시보드 실시간 모니터링 데이터 스트림 API
-    GET /api/web/monitoring/dashboard/stream
-    """
-    # 앱 인스턴스 생성 - create_app 함수가 정의되어 있어야 함
+    token = request.args.get('token')
+    if not token:
+        return jsonify({
+            "timestamp": datetime.now().isoformat(),
+            "status": "error",
+            "message": "인증 토큰이 필요합니다. URL에 ?token=YOUR_JWT_TOKEN을 추가하세요."
+        }), 401
+    
+    try:
+        decoded_token = decode_token(token)
+    except Exception as e:
+        return jsonify({
+            "timestamp": datetime.now().isoformat(),
+            "status": "error",
+            "message": "유효하지 않은 토큰입니다.",
+            "traceback": str(e)
+        }), 401
+    
     app = create_app()
     
     def generate_dashboard_stream():
-        # 초기 연결 메시지
         yield "data: {\"status\":\"connected\",\"message\":\"대시보드 모니터링 스트림 연결 성공\"}\n\n"
         time.sleep(1)
         
         while True:
-            # 각 반복마다 새로운 앱 컨텍스트 생성
             with app.app_context():
                 try:
                     # 1. 온열질환 위험자 조회
@@ -40,7 +48,6 @@ def dashboard_stream():
                     
                     heat_risk_data = []
                     for anomaly, employee in heat_risks:
-                        # 최신 생체 데이터 조회
                         latest_measurement = DeviceMeasurement.query\
                             .filter_by(emp_id=employee.emp_id)\
                             .order_by(DeviceMeasurement.measure_time.desc())\
@@ -51,7 +58,7 @@ def dashboard_stream():
                             "name": employee.name,
                             "picture": employee.picture,
                             "vitals": {
-                                "temperature": latest_measurement.temp if latest_measurement else None,
+                                "temperature": round(latest_measurement.temp, 1) if latest_measurement and latest_measurement.temp is not None else None,
                                 "heart_rate": latest_measurement.hr if latest_measurement else None,
                                 "respiration": latest_measurement.resp if latest_measurement else None
                             },
@@ -72,7 +79,6 @@ def dashboard_stream():
                     
                     fall_risk_data = []
                     for anomaly, employee in fall_risks:
-                        # 최신 생체 데이터 조회
                         latest_measurement = DeviceMeasurement.query\
                             .filter_by(emp_id=employee.emp_id)\
                             .order_by(DeviceMeasurement.measure_time.desc())\
@@ -83,7 +89,7 @@ def dashboard_stream():
                             "name": employee.name,
                             "picture": employee.picture,
                             "vitals": {
-                                "temperature": latest_measurement.temp if latest_measurement else None,
+                                "temperature": round(latest_measurement.temp, 1) if latest_measurement and latest_measurement.temp is not None else None,
                                 "heart_rate": latest_measurement.hr if latest_measurement else None,
                                 "respiration": latest_measurement.resp if latest_measurement else None
                             },
@@ -95,19 +101,14 @@ def dashboard_stream():
                             "detected_time": anomaly.anomaly_time.isoformat() if anomaly.anomaly_time else None
                         })
                     
-                    # 3. 장비 현황 조회 (출근 기반)
+                    # 3. 장비 현황 조회
                     total_devices = Device.query.count()
-                    
-                    # 오늘 날짜
                     today = date.today()
-                    
-                    # 활성 장비: 오늘 출근했고 아직 퇴근하지 않은 직원의 장비
                     active_devices = db.session.query(Device.device_id)\
                         .join(DeviceManagement, Device.device_id == DeviceManagement.device_id)\
                         .filter(db.func.date(DeviceManagement.check_in) == today)\
                         .filter(DeviceManagement.check_out.is_(None))\
                         .distinct().count()
-                    
                     inactive_devices = total_devices - active_devices
                     
                     # 4. 응답 데이터 생성
@@ -123,10 +124,15 @@ def dashboard_stream():
                                 "inactive_devices": inactive_devices,
                                 "last_updated": datetime.now().isoformat()
                             }
+                        },
+                        "debug_info": {
+                            "heat_risk_count": len(heat_risk_data),
+                            "fall_risk_count": len(fall_risk_data),
+                            "heat_risk_employees": heat_risk_data,
+                            "fall_risk_employees": fall_risk_data
                         }
                     }
-                    
-                    # SSE 형식으로 전송
+
                     yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                     
                 except Exception as e:
@@ -138,7 +144,6 @@ def dashboard_stream():
                     }
                     yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
-            # 앱 컨텍스트 외부에서 sleep
             time.sleep(300)  # 5분 대기
     
     return Response(
