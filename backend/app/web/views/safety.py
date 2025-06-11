@@ -1,10 +1,8 @@
 # app/web/safety.py
 from flask import Blueprint, jsonify, Response, request
-from flask_jwt_extended import decode_token, verify_jwt_in_request, get_jwt
 from datetime import datetime
 import time
 import json
-import traceback
 import os
 
 # Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
@@ -13,28 +11,9 @@ from app.model import (
     HealthAnomaly, Employee, EmergencyContact, 
     DeviceMeasurement, Device
 )
+from app.util.auth_utils import verify_token_from_query
 
 safety_bp = Blueprint('safety', __name__)
-
-def verify_token_from_query():
-    """쿼리 파라미터에서 토큰을 검증하는 함수"""
-    token = request.args.get('token')
-    if not token:
-        return False, "토큰이 필요합니다"
-    
-    try:
-        # 토큰 디코드 및 검증
-        decoded_token = decode_token(token)
-        
-        # 토큰 만료 확인
-        from datetime import datetime, timezone
-        exp = decoded_token.get('exp')
-        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
-            return False, "토큰이 만료되었습니다"
-            
-        return True, decoded_token
-    except Exception as e:
-        return False, f"유효하지 않은 토큰입니다: {str(e)}"
 
 def convert_picture_to_url(picture_path):
     """절대 경로를 웹 URL로 변환"""
@@ -168,11 +147,11 @@ def danger_employees_stream():
                 yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                 
             except Exception as e:
+                print(f"[ERROR] 위험 직원 데이터 조회 오류: {str(e)}")
                 error_data = {
                     "timestamp": datetime.now().isoformat(),
                     "status": "error",
-                    "message": str(e),
-                    "traceback": traceback.format_exc()
+                    "message": "위험 직원 데이터 조회 중 오류가 발생했습니다."
                 }
                 yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
@@ -227,11 +206,11 @@ def caution_employees_stream():
                 yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                 
             except Exception as e:
+                print(f"[ERROR] 주의 직원 데이터 조회 오류: {str(e)}")
                 error_data = {
                     "timestamp": datetime.now().isoformat(),
                     "status": "error",
-                    "message": str(e),
-                    "traceback": traceback.format_exc()
+                    "message": "주의 직원 데이터 조회 중 오류가 발생했습니다."
                 }
                 yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             

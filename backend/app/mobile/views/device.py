@@ -28,15 +28,20 @@ def record_measurement():
         # 요청에서 데이터 추출
         data = request.get_json()
 
-        # 필수 데이터 확인
-        if not data or 'product' not in data:
-            return jsonify({'error': '디바이스 이름(product)은 필수입니다'}), 400
+        # data가 None인 경우 빈 딕셔너리로 초기화
+        if not data:
+            data = {}
+
+        # product가 없을 경우 하드코딩된 기본값 사용
+        product_name = data.get('product', 'Galaxy Watch Active 2')  # 여기에 실제 사용할 디바이스 이름을 넣으세요
+        
+        print(f"사용할 product: {product_name}")  # 디버깅용 출력
 
         # 디바이스 이름(product)으로 디바이스 ID 조회
-        device = Device.query.filter_by(product=data.get('product')).first()
+        device = Device.query.filter_by(product=product_name).first()
 
         if not device:
-            return jsonify({'error': '해당 디바이스 이름과 일치하는 장치를 찾을 수 없습니다'}), 404
+            return jsonify({'error': f'디바이스 이름 "{product_name}"과 일치하는 장치를 찾을 수 없습니다'}), 404
 
         # ✅ 서비스 함수 호출
         result = DeviceService.process_measurement(current_user, device, data)
@@ -47,5 +52,4 @@ def record_measurement():
         return jsonify(result), 200
 
     except Exception as e:
-        print(f"에러 발생: {str(e)}")
         return jsonify({'error': f'데이터 처리 중 오류가 발생했습니다: {str(e)}'}), 500

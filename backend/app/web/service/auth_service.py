@@ -21,11 +21,6 @@ class AuthService:
         if not employee:
             return None, "존재하지 않는 직원 ID입니다"
         
-        # 디버깅 로그
-        print(f"인증 시도: {emp_id}")
-        print(f"저장된 비밀번호: '{employee.password}'")
-        print(f"입력된 비밀번호: '{password}'")
-        
         # 3. 비밀번호 확인
         # 저장된 비밀번호가 있는 경우
         if employee.password:
@@ -64,11 +59,6 @@ class AuthService:
         # 2. 직원이 존재하지 않는 경우
         if not employee:
             return None, "존재하지 않는 ID입니다"
-        
-        # 디버깅 로그
-        print(f"관리자 인증 시도: {admin_id}")
-        print(f"저장된 비밀번호: '{employee.password}'")
-        print(f"입력된 비밀번호: '{password}'")
         
         # 3. 비밀번호 확인
         if employee.password:

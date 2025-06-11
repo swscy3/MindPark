@@ -1,34 +1,25 @@
+# app/web/monitoring.py
 from flask import Blueprint, Response, jsonify, request
-from flask_jwt_extended import decode_token
 from datetime import datetime, date
 import time
 import json
-import traceback
 
 from app import create_app, db
 from app.model import HealthAnomaly, Employee, Device, DeviceMeasurement, DeviceManagement
+from app.util.auth_utils import verify_token_from_query
 
 monitoring_bp = Blueprint('monitoring', __name__)
 
 @monitoring_bp.route('/dashboard/stream')
 def dashboard_stream():
-    token = request.args.get('token')
-    if not token:
-        return jsonify({
-            "timestamp": datetime.now().isoformat(),
-            "status": "error",
-            "message": "인증 토큰이 필요합니다. URL에 ?token=YOUR_JWT_TOKEN을 추가하세요."
-        }), 401
-    
-    try:
-        decoded_token = decode_token(token)
-    except Exception as e:
-        return jsonify({
-            "timestamp": datetime.now().isoformat(),
-            "status": "error",
-            "message": "유효하지 않은 토큰입니다.",
-            "traceback": str(e)
-        }), 401
+    """
+    대시보드 모니터링 스트림 API
+    GET /api/web/monitoring/dashboard/stream?token=JWT_TOKEN
+    """
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
     
     app = create_app()
     
@@ -136,11 +127,11 @@ def dashboard_stream():
                     yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                     
                 except Exception as e:
+                    print(f"[ERROR] 대시보드 데이터 조회 오류: {str(e)}")
                     error_data = {
                         "timestamp": datetime.now().isoformat(),
                         "status": "error", 
-                        "message": str(e),
-                        "traceback": traceback.format_exc()
+                        "message": "대시보드 데이터 조회 중 오류가 발생했습니다."
                     }
                     yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             

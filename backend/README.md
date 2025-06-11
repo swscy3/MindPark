@@ -13,23 +13,19 @@ backend/
 ├── requirements.txt        # 프로젝트 의존성
 ├── .env                    # 환경 변수 파일
 ├── .gitignore              # Git 무시 파일
-├── tests/                  # 테스트용 파일
-│   ├── app1.py
-│   ├── test_auth.py
-│   ├── test_device.py
-│   ├── test_health.py
-│   └── test_main.py
 ├── database/               # 데이터베이스 관련
-│   ├── datafile/
-│   │   ├── admin.csv
-│   │   ├── device.csv
-│   │   ├── emergency_contact.csv
-│   │   ├── employee_attendance.csv
-│   │   ├── employee_health.csv
-│   │   ├── employee.csv
+│   ├── datafile/                           # 데이터베이스 초기 데이터 저장 폴더
+│   │   ├── admin.csv                       # 관리자 목록
+│   │   ├── device_measurement.csv          # 스마트 워치 측정 데이터
+│   │   ├── device.csv                      # 스마트 워치 목록
+│   │   ├── emergency_contact.csv           # 비상 연락망 정보
+│   │   ├── employee_attendance.csv         # 직원 출퇴근 기록
+│   │   ├── employee_health.csv             # 직원 건강 정보
+│   │   ├── employee.csv                    # 직원 인적 사항
+│   │   ├── health_anomaly.csv              # 이상 징후 발생 기록
 │   │   └── picture/        # 사진 파일
-│   ├── create_schema.py  
-│   └── create_table.py
+│   ├── create_schema.py       # MySQL 테이블 생성
+│   └── create_table.py        # CSV 파일 테이블에 삽입
 └── app/                    # 애플리케이션 패키지
     ├── __init__.py         # Flask 앱 초기화
     ├── model.py            # 데이터베이스 모델 (통합)

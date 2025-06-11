@@ -70,11 +70,6 @@ def mobile_login():
                     check_in=check_in_time
                 ))
                 db.session.commit()
-                print(f"[본인 출근] {emp_id}, {device.device_id}, {check_in_time}")
-            else:
-                print(f"[본인 출근 생략] 이미 출근함: {emp_id}")
-        else:
-            print(f"[경고] 디바이스 없음: {emp_id}")
 
         # ✅ EN0003이 오늘 첫 출근일 경우에만 더미 출근 생성
         if create_dummy:
@@ -101,11 +96,9 @@ def mobile_login():
                     dummy_created += 1
 
             db.session.commit()
-            print(f"[더미 출근 생성] {dummy_created}명 생성 완료 (요청자: EN0003)")
 
     except Exception as e:
         db.session.rollback()
-        print(f"[에러] 출근 처리 실패: {str(e)}")
 
     return jsonify({
         "message": "로그인 성공",
@@ -145,9 +138,6 @@ def mobile_logout():
                 if latest:
                     latest.check_out = now
                     db.session.commit()
-                    print(f"[본인 퇴근] {emp_id}, {device.device_id}, {now}")
-                else:
-                    print(f"[본인 퇴근 없음] {emp_id}: check_out=None 기록 없음")
 
             # ✅ 2. EN0003일 경우에만 더미 직원 퇴근 처리
             if emp_id == 'EN0003':
@@ -179,11 +169,9 @@ def mobile_logout():
                             dummy_updated += 1
 
                 db.session.commit()
-                print(f"[더미 퇴근] {dummy_updated}명 퇴근 처리 완료 (요청자: EN0003)")
 
         except Exception as e:
             db.session.rollback()
-            print(f"[에러] 퇴근 처리 실패: {str(e)}")
 
     if not success:
         return jsonify({"error": "로그아웃 처리 중 오류 발생"}), 500

@@ -11,11 +11,6 @@ class AuthService:
         if not employee:
             return None, "아이디 또는 비밀번호가 잘못되었습니다"
         
-        # 디버깅 로그
-        print(f"로그인 시도: {emp_id}")
-        print(f"저장된 비밀번호: '{employee.password}'")
-        print(f"입력된 비밀번호: '{password}'")
-        
         # 비밀번호 확인
         if not employee.check_password(password):
             return None, "아이디 또는 비밀번호가 잘못되었습니다"

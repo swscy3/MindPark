@@ -1,10 +1,8 @@
 # app/web/employees.py
 from flask import Blueprint, jsonify, Response, request
-from flask_jwt_extended import decode_token
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import time
 import json
-import traceback
 import pytz
 
 # Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
@@ -13,6 +11,7 @@ from app.model import (
     Employee, EmergencyContact, DeviceMeasurement, 
     Device, DeviceManagement, Admin
 )
+from app.util.auth_utils import verify_token_from_query
 
 employees_bp = Blueprint('employees', __name__)
 
@@ -21,26 +20,6 @@ def get_korea_today():
     korea_tz = pytz.timezone('Asia/Seoul')
     korea_now = datetime.now(korea_tz)
     return korea_now.date()
-
-def verify_token_from_query():
-    """쿼리 파라미터에서 토큰을 검증하는 함수"""
-    token = request.args.get('token')
-    if not token:
-        return False, "토큰이 필요합니다"
-    
-    try:
-        # 토큰 디코드 및 검증
-        decoded_token = decode_token(token)
-        
-        # 토큰 만료 확인
-        from datetime import datetime, timezone
-        exp = decoded_token.get('exp')
-        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
-            return False, "토큰이 만료되었습니다"
-            
-        return True, decoded_token
-    except Exception as e:
-        return False, f"유효하지 않은 토큰입니다: {str(e)}"
 
 def get_attendance_status(emp_id, today):
     """출근 상태 확인 (한국 시간 기준)"""
@@ -108,9 +87,9 @@ def debug_attendance(emp_id):
         return jsonify(debug_info), 200
         
     except Exception as e:
+        print(f"[ERROR] 출근 디버깅 오류 (emp_id: {emp_id}): {str(e)}")
         return jsonify({
-            "error": str(e),
-            "traceback": traceback.format_exc()
+            "error": "출근 데이터 조회 중 오류가 발생했습니다."
         }), 500
 
 @employees_bp.route('/list/stream')
@@ -173,11 +152,11 @@ def employees_list_stream():
                     yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                     
                 except Exception as e:
+                    print(f"[ERROR] 직원 목록 조회 오류: {str(e)}")
                     error_data = {
                         "timestamp": datetime.now().isoformat(),
                         "status": "error",
-                        "message": str(e),
-                        "traceback": traceback.format_exc()
+                        "message": "직원 목록 조회 중 오류가 발생했습니다."
                     }
                     yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
@@ -257,9 +236,9 @@ def get_employee_detail(emp_id):
         return jsonify(response_data), 200
         
     except Exception as e:
+        print(f"[ERROR] 직원 상세정보 조회 오류 (emp_id: {emp_id}): {str(e)}")
         return jsonify({
             "timestamp": datetime.now().isoformat(),
             "status": "error",
-            "message": f"상세정보 조회 중 오류 발생: {str(e)}",
-            "traceback": traceback.format_exc()
+            "message": "상세정보 조회 중 오류가 발생했습니다."
         }), 500
