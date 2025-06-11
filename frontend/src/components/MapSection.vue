@@ -28,7 +28,6 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/leaflet.markercluster.js';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import axios from 'axios';
 
 // 기본 마커 아이콘 설정
 delete L.Icon.Default.prototype._getIconUrl;
@@ -40,23 +39,74 @@ L.Icon.Default.mergeOptions({
 
 export default {
   name: 'HeatMap',
+  props: {
+    heatRiskWorkers: {
+      type: Array,
+      default: () => []
+    },
+    fallRiskWorkers: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       map: null,
-      markersCluster: null,
-      heatData: {
-        heat_name: [],
-        heat_temp: [],
-        heat_hr: [],
-        heat_risk: [],
-        heat_incident_lat: [],
-        heat_incident_lng: []
-      }
+      markersCluster: null
     };
+  },
+  computed: {
+    // 모든 위험자 데이터를 합쳐서 지도용 데이터로 변환
+    allRiskWorkers() {
+      const allWorkers = [];
+      
+      // 온열질환 위험자 추가
+      this.heatRiskWorkers.forEach(worker => {
+        if (worker.location && worker.location.latitude && worker.location.longitude) {
+          allWorkers.push({
+            emp_id: worker.emp_id,
+            name: worker.name,
+            temperature: worker.vitals?.temperature || 0,
+            heart_rate: worker.vitals?.heart_rate || 0,
+            risk_level: worker.risk_level,
+            latitude: worker.location.latitude,
+            longitude: worker.location.longitude,
+            type: 'heat' // 온열질환 타입
+          });
+        }
+      });
+      
+      // 낙상 위험자 추가
+      this.fallRiskWorkers.forEach(worker => {
+        if (worker.location && worker.location.latitude && worker.location.longitude) {
+          allWorkers.push({
+            emp_id: worker.emp_id,
+            name: worker.name,
+            temperature: worker.vitals?.temperature || 0,
+            heart_rate: worker.vitals?.heart_rate || 0,
+            risk_level: worker.risk_level,
+            latitude: worker.location.latitude,
+            longitude: worker.location.longitude,
+            type: 'fall' // 낙상 타입
+          });
+        }
+      });
+      
+      return allWorkers;
+    }
   },
   mounted() {
     this.initMap();
-    this.loadHeatData();
+    this.addMarkersToMap();
+  },
+  watch: {
+    // props가 변경될 때마다 마커 업데이트
+    allRiskWorkers: {
+      handler() {
+        this.addMarkersToMap();
+      },
+      deep: true
+    }
   },
   methods: {
     initMap() {
@@ -81,44 +131,32 @@ export default {
       this.map.addLayer(this.markersCluster);
     },
     
-    async loadHeatData() {
-      try {
-        // 실제 API 호출 시 사용
-        // const response = await axios.get('/api/heat-data');
-        // this.heatData = response.data;
-        
-        // 테스트 데이터 - 적당한 거리로 배치
-        this.heatData = {
-          heat_name: ["김철수", "이영희", "박민수", "최순자"],
-          heat_temp: ["38.2", "37.9", "39.1", "37.5"],
-          heat_hr: ["120", "115", "130", "110"],
-          heat_risk: ["위험", "주의", "위험", "주의"],
-          heat_incident_lat: [34.912787, 34.913500, 34.912200, 34.913200],
-          heat_incident_lng: [126.437601, 126.438200, 126.437000, 126.438500]
-        };
-        
-        this.addMarkersToMap();
-      } catch (error) {
-        console.error('데이터 로딩 실패:', error);
-      }
-    },
-    
     addMarkersToMap() {
+      if (!this.map || !this.markersCluster) return;
+      
       // 기존 마커들 제거
       this.markersCluster.clearLayers();
       
-      const dataLength = this.heatData.heat_name.length;
+      // 데이터가 없으면 종료
+      if (this.allRiskWorkers.length === 0) {
+        console.log('표시할 위험자 데이터가 없습니다.');
+        return;
+      }
       
-      for (let i = 0; i < dataLength; i++) {
-        const lat = parseFloat(this.heatData.heat_incident_lat[i]);
-        const lng = parseFloat(this.heatData.heat_incident_lng[i]);
-        const name = this.heatData.heat_name[i];
-        const temp = this.heatData.heat_temp[i];
-        const hr = this.heatData.heat_hr[i];
-        const risk = this.heatData.heat_risk[i];
+      console.log('지도에 마커 추가:', this.allRiskWorkers);
+      
+      this.allRiskWorkers.forEach(worker => {
+        const lat = parseFloat(worker.latitude);
+        const lng = parseFloat(worker.longitude);
+        
+        // 유효한 좌표인지 확인
+        if (isNaN(lat) || isNaN(lng)) {
+          console.warn(`유효하지 않은 좌표: ${worker.name} (${worker.latitude}, ${worker.longitude})`);
+          return;
+        }
         
         // 위험도에 따른 마커 색상 결정
-        const markerColor = this.getMarkerColor(risk);
+        const markerColor = this.getMarkerColor(worker.risk_level);
         const customIcon = this.createCustomIcon(markerColor);
         
         // 마커 생성
@@ -127,11 +165,12 @@ export default {
         // 팝업 내용 생성
         const popupContent = `
           <div class="marker-popup">
-            <h3>${name}</h3>
+            <h3>${worker.name} (${worker.emp_id})</h3>
             <div class="popup-info">
-              <p><strong>체온:</strong> ${temp}°C</p>
-              <p><strong>심박수:</strong> ${hr} BPM</p>
-              <p><strong>위험도:</strong> <span class="risk-${risk === '위험' ? 'danger' : 'caution'}">${risk}</span></p>
+              <p><strong>타입:</strong> ${worker.type === 'heat' ? '온열질환' : '낙상'}</p>
+              <p><strong>체온:</strong> ${worker.temperature}°C</p>
+              <p><strong>심박수:</strong> ${worker.heart_rate} BPM</p>
+              <p><strong>위험도:</strong> <span class="risk-${worker.risk_level === '위험' ? 'danger' : 'caution'}">${worker.risk_level}</span></p>
             </div>
           </div>
         `;
@@ -140,7 +179,7 @@ export default {
         
         // 클러스터에 마커 추가
         this.markersCluster.addLayer(marker);
-      }
+      });
       
       // 모든 마커가 추가된 후, 마커들이 모두 보이도록 지도 범위 조정
       if (this.markersCluster.getLayers().length > 0) {
@@ -174,9 +213,9 @@ export default {
       });
     },
     
-    // 데이터 새로고침 메서드
+    // 데이터 새로고침 메서드 (외부에서 호출 가능)
     refreshData() {
-      this.loadHeatData();
+      this.addMarkersToMap();
     }
   },
   

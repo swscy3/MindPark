@@ -1,21 +1,50 @@
 # app/web/employees.py
-from flask import Blueprint, jsonify, Response
-from flask_jwt_extended import jwt_required
+from flask import Blueprint, jsonify, Response, request
+from flask_jwt_extended import decode_token
 from datetime import datetime, date
 import time
 import json
 import traceback
+import pytz
 
-from app import db
+# Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
+from app import create_app, db
 from app.model import (
     Employee, EmergencyContact, DeviceMeasurement, 
-    Device, DeviceManagement
+    Device, DeviceManagement, Admin
 )
 
 employees_bp = Blueprint('employees', __name__)
 
+def get_korea_today():
+    """한국 시간 기준 오늘 날짜 반환"""
+    korea_tz = pytz.timezone('Asia/Seoul')
+    korea_now = datetime.now(korea_tz)
+    return korea_now.date()
+
+def verify_token_from_query():
+    """쿼리 파라미터에서 토큰을 검증하는 함수"""
+    token = request.args.get('token')
+    if not token:
+        return False, "토큰이 필요합니다"
+    
+    try:
+        # 토큰 디코드 및 검증
+        decoded_token = decode_token(token)
+        
+        # 토큰 만료 확인
+        from datetime import datetime, timezone
+        exp = decoded_token.get('exp')
+        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
+            return False, "토큰이 만료되었습니다"
+            
+        return True, decoded_token
+    except Exception as e:
+        return False, f"유효하지 않은 토큰입니다: {str(e)}"
+
 def get_attendance_status(emp_id, today):
-    """출근 상태 확인"""
+    """출근 상태 확인 (한국 시간 기준)"""
+    # 한국 시간 기준으로 날짜 비교
     attendance = DeviceManagement.query\
         .filter_by(emp_id=emp_id)\
         .filter(db.func.date(DeviceManagement.check_in) == today)\
@@ -24,61 +53,136 @@ def get_attendance_status(emp_id, today):
     
     return "출근중" if attendance else "미출근"
 
+@employees_bp.route('/debug/attendance/<emp_id>')
+def debug_attendance(emp_id):
+    """출근 데이터 디버깅용 엔드포인트"""
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
+    
+    try:
+        # 서버 시간 정보
+        utc_now = datetime.utcnow()
+        korea_tz = pytz.timezone('Asia/Seoul')
+        korea_now = datetime.now(korea_tz)
+        server_today = date.today()
+        korea_today = get_korea_today()
+        
+        # 해당 직원의 출근 기록 조회 (최근 7일)
+        recent_attendances = DeviceManagement.query\
+            .filter_by(emp_id=emp_id)\
+            .filter(DeviceManagement.check_in >= (korea_today - timedelta(days=7)))\
+            .order_by(DeviceManagement.check_in.desc())\
+            .all()
+        
+        attendance_records = []
+        for att in recent_attendances:
+            attendance_records.append({
+                "check_in": att.check_in.isoformat() if att.check_in else None,
+                "check_out": att.check_out.isoformat() if att.check_out else None,
+                "check_in_date": att.check_in.date().isoformat() if att.check_in else None
+            })
+        
+        # 오늘 출근 기록 확인
+        today_attendance = DeviceManagement.query\
+            .filter_by(emp_id=emp_id)\
+            .filter(db.func.date(DeviceManagement.check_in) == korea_today)\
+            .first()
+        
+        debug_info = {
+            "emp_id": emp_id,
+            "server_utc_time": utc_now.isoformat(),
+            "korea_time": korea_now.isoformat(),
+            "server_today": server_today.isoformat(),
+            "korea_today": korea_today.isoformat(),
+            "today_attendance_found": today_attendance is not None,
+            "today_attendance": {
+                "check_in": today_attendance.check_in.isoformat() if today_attendance and today_attendance.check_in else None,
+                "check_out": today_attendance.check_out.isoformat() if today_attendance and today_attendance.check_out else None
+            } if today_attendance else None,
+            "recent_attendances": attendance_records,
+            "attendance_status": get_attendance_status(emp_id, korea_today)
+        }
+        
+        return jsonify(debug_info), 200
+        
+    except Exception as e:
+        return jsonify({
+            "error": str(e),
+            "traceback": traceback.format_exc()
+        }), 500
+
 @employees_bp.route('/list/stream')
-@jwt_required()
 def employees_list_stream():
     """
-    전체 작업자 목록 실시간 스트림 API
-    GET /api/web/employees/list/stream
+    전체 작업자 목록 실시간 스트림 API (Admin 제외)
+    GET /api/web/emp/list/stream?token=JWT_TOKEN
     """
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
+    
+    # 앱 인스턴스 생성
+    app = create_app()
+    
     def generate_employees_stream():
         # 초기 연결 메시지
         yield "data: {\"status\":\"connected\",\"message\":\"작업자 목록 스트림 연결 성공\"}\n\n"
         time.sleep(1)
         
         while True:
-            try:
-                # 모든 직원 조회
-                employees = Employee.query.all()
-                today = date.today()
-                
-                employees_data = []
-                
-                for employee in employees:
-                    # 출근 상태 확인
-                    attendance_status = get_attendance_status(employee.emp_id, today)
+            # 각 반복마다 새로운 앱 컨텍스트 생성
+            with app.app_context():
+                try:
+                    # Admin 제외한 일반 직원만 조회
+                    employees = Employee.query\
+                        .outerjoin(Admin, Employee.emp_id == Admin.admin_id)\
+                        .filter(Admin.admin_id.is_(None))\
+                        .all()
                     
-                    employees_data.append({
-                        "emp_id": employee.emp_id,
-                        "name": employee.name,
-                        "department": employee.dept,
-                        "position": employee.position,
-                        "attendance_status": attendance_status
-                    })
-                
-                # 응답 데이터 생성
-                response_data = {
-                    "timestamp": datetime.now().isoformat(),
-                    "status": "success",
-                    "data": {
-                        "employees": employees_data
+                    # 한국 시간 기준 오늘 날짜
+                    today = get_korea_today()
+                    
+                    employees_data = []
+                    
+                    for employee in employees:
+                        # 출근 상태 확인
+                        attendance_status = get_attendance_status(employee.emp_id, today)
+                        
+                        employees_data.append({
+                            "emp_id": employee.emp_id,
+                            "name": employee.name,
+                            "department": employee.dept,
+                            "position": employee.position,
+                            "attendance_status": attendance_status
+                        })
+                    
+                    # 응답 데이터 생성
+                    response_data = {
+                        "timestamp": datetime.now().isoformat(),
+                        "korea_today": today.isoformat(),  # 디버깅용 추가
+                        "status": "success",
+                        "data": {
+                            "employees": employees_data
+                        }
                     }
-                }
-                
-                # SSE 형식으로 전송
-                yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
-                
-            except Exception as e:
-                error_data = {
-                    "timestamp": datetime.now().isoformat(),
-                    "status": "error",
-                    "message": str(e),
-                    "traceback": traceback.format_exc()
-                }
-                yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
+                    
+                    # SSE 형식으로 전송
+                    yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
+                    
+                except Exception as e:
+                    error_data = {
+                        "timestamp": datetime.now().isoformat(),
+                        "status": "error",
+                        "message": str(e),
+                        "traceback": traceback.format_exc()
+                    }
+                    yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
-            # 5분 대기
-            time.sleep(300)
+            # 앱 컨텍스트 외부에서 sleep
+            time.sleep(300)  # 5분 대기
     
     return Response(
         generate_employees_stream(),
@@ -93,12 +197,16 @@ def employees_list_stream():
     )
 
 @employees_bp.route('/<emp_id>/detail', methods=['GET'])
-@jwt_required()
 def get_employee_detail(emp_id):
     """
     작업자 상세정보 조회 API
-    GET /api/web/employees/{emp_id}/detail
+    GET /api/web/emp/{emp_id}/detail?token=JWT_TOKEN
     """
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
+    
     try:
         # 직원 기본 정보
         employee = Employee.query.filter_by(emp_id=emp_id).first()
@@ -141,8 +249,8 @@ def get_employee_detail(emp_id):
                 "steps": latest_measurement.walk if latest_measurement else None,
                 "device_name": device.product if device else None,
                 "battery_level": latest_measurement.battery if latest_measurement else None,
-                "latitude": latest_measurement.latitude if latest_measurement else None,
-                "longitude": latest_measurement.longitude if latest_measurement else None
+                "latitude": latest_measurement.loc_y if latest_measurement else None,   # 🔧 수정
+                "longitude": latest_measurement.loc_x if latest_measurement else None   # 🔧 수정
             }
         }
         

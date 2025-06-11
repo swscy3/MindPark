@@ -5,7 +5,15 @@
       <div class="tab" :class="{ active: activeTab === 'caution' }" @click="activeTab = 'caution'">안전 주의</div>
     </div>
     
-    <div class="worker-container">
+    <div v-if="loading" class="loading-message">
+      데이터를 불러오는 중...
+    </div>
+    
+    <div v-else-if="filteredWorkers.length === 0" class="no-data-message">
+      해당 상태의 작업자가 없습니다.
+    </div>
+    
+    <div v-else class="worker-container">
       <div class="worker-row" v-for="(group, groupIndex) in paginatedGroups" :key="groupIndex">
         <div v-for="(worker, workerIndex) in group" :key="worker.id" class="worker-column">
           <div class="worker-card" :class="{ 'normal-card': worker.status !== 'danger' }">
@@ -18,8 +26,7 @@
               <div class="info-text">
                 <div class="worker-name">{{ worker.name }}</div>
                 <div class="worker-age">{{ worker.age }}세, {{ worker.gender }}</div>
-                <div class="worker-phone">{{ worker.phone }}</div>
-                <div class="worker-location">위치</div>
+                <div class="worker-phone">보호자 연락처:<br> {{ worker.phone }}</div>
               </div>
             </div>
             
@@ -66,7 +73,7 @@
       </div>
     </div>
     
-    <div class="pagination-controls">
+    <div class="pagination-controls" v-if="!loading && filteredWorkers.length > 0">
       <div class="page-info">{{ currentPage }} / {{ totalPages }} 페이지</div>
       <div class="pagination-buttons">
         <button class="pagination-button" @click="goToPage(1)" :disabled="currentPage === 1">처음</button>
@@ -99,538 +106,16 @@ export default {
       workersPerPage: 10, // 한 페이지에 10명 (2행 5열)
       workersPerRow: 5,   // 한 행에 5명
       expandedDevices: [], // 확장된 디바이스 정보를 추적하는 배열
-      workers: [
-        // 위험 상태 근로자 (14명)
-        {
-          id: 1,
-          name: '박지은',
-          age: '만 23',
-          gender: '여',
-          phone: '010-2237-0011',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '112bpm',
-            oxygenSaturation: '90%',
-            bodyTemperature: '38.5°C',
-            walk: '12,000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '85%'
-          }
-        },
-        {
-          id: 2,
-          name: '이민준',
-          age: '만 42',
-          gender: '남',
-          phone: '010-9876-5432',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '110bpm',
-            oxygenSaturation: '92%',
-            bodyTemperature: '38.2°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '25%'
-          }
-        },
-        {
-          id: 3,
-          name: '최서연',
-          age: '만 29',
-          gender: '여',
-          phone: '010-1122-3344',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '115bpm',
-            oxygenSaturation: '91%',
-            bodyTemperature: '38.7°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '65%'
-          }
-        },
-        {
-          id: 4,
-          name: '송현우',
-          age: '만 38',
-          gender: '남',
-          phone: '010-3344-5566',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '105bpm',
-            oxygenSaturation: '92%',
-            bodyTemperature: '38.0°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '18%'
-          }
-        },
-        {
-          id: 5,
-          name: '양지원',
-          age: '만 24',
-          gender: '여',
-          phone: '010-5566-7788',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '112bpm',
-            oxygenSaturation: '90%',
-            bodyTemperature: '38.5°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '32%'
-          }
-        },
-        {
-          id: 6,
-          name: '안태현',
-          age: '만 36',
-          gender: '남',
-          phone: '010-7788-9900',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '108bpm',
-            oxygenSaturation: '91%',
-            bodyTemperature: '38.3°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '22%'
-          }
-        },
-        {
-          id: 7,
-          name: '김민지',
-          age: '만 22',
-          gender: '여',
-          phone: '010-9900-1122',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '114bpm',
-            oxygenSaturation: '89%',
-            bodyTemperature: '38.9°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '28%'
-          }
-        },
-        {
-          id: 8,
-          name: '송재호',
-          age: '만 37',
-          gender: '남',
-          phone: '010-1122-3344',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '107bpm',
-            oxygenSaturation: '91%',
-            bodyTemperature: '38.4°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '20%'
-          }
-        },
-        {
-          id: 9,
-          name: '양미래',
-          age: '만 24',
-          gender: '여',
-          phone: '010-3344-5566',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '113bpm',
-            oxygenSaturation: '90%',
-            bodyTemperature: '38.6°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '30%'
-          }
-        },
-        {
-          id: 10,
-          name: '김하늘',
-          age: '만 29',
-          gender: '여',
-          phone: '010-2233-4455',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '118bpm',
-            oxygenSaturation: '88%',
-            bodyTemperature: '38.8°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '25%'
-          }
-        },
-        {
-          id: 11,
-          name: '정우진',
-          age: '만 33',
-          gender: '남',
-          phone: '010-6677-8899',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '106bpm',
-            oxygenSaturation: '90%',
-            bodyTemperature: '38.3°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '31%'
-          }
-        },
-        {
-          id: 12,
-          name: '고은영',
-          age: '만 26',
-          gender: '여',
-          phone: '010-3355-7788',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '110bpm',
-            oxygenSaturation: '89%',
-            bodyTemperature: '38.7°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 C',
-            batteryStatus: '23%'
-          }
-        },
-        {
-          id: 13,
-          name: '윤성민',
-          age: '만 31',
-          gender: '남',
-          phone: '010-9988-7766',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '108bpm',
-            oxygenSaturation: '91%',
-            bodyTemperature: '38.1°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '42%'
-          }
-        },
-        {
-          id: 14,
-          name: '장서현',
-          age: '만 28',
-          gender: '여',
-          phone: '010-1122-3355',
-          status: 'danger',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '115bpm',
-            oxygenSaturation: '90%',
-            bodyTemperature: '38.4°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '19%'
-          }
-        },
-        
-        // 주의 상태 근로자 (13명)
-        {
-          id: 15,
-          name: '김영호',
-          age: '만 35',
-          gender: '남',
-          phone: '010-3456-7890',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '88bpm',
-            oxygenSaturation: '97%',
-            bodyTemperature: '37.1°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 C',
-            batteryStatus: '45%'
-          }
-        },
-        {
-          id: 16,
-          name: '한지민',
-          age: '만 27',
-          gender: '여',
-          phone: '010-9900-1122',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '95bpm',
-            oxygenSaturation: '94%',
-            bodyTemperature: '37.5°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '42%'
-          }
-        },
-        {
-          id: 17,
-          name: '강민호',
-          age: '만 33',
-          gender: '남',
-          phone: '010-1122-3344',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '92bpm',
-            oxygenSaturation: '93%',
-            bodyTemperature: '37.4°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '55%'
-          }
-        },
-        {
-          id: 18,
-          name: '유하은',
-          age: '만 26',
-          gender: '여',
-          phone: '010-3344-5566',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '94bpm',
-            oxygenSaturation: '94%',
-            bodyTemperature: '37.3°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '48%'
-          }
-        },
-        {
-          id: 19,
-          name: '한소율',
-          age: '만 30',
-          gender: '여',
-          phone: '010-7788-9900',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '93bpm',
-            oxygenSaturation: '94%',
-            bodyTemperature: '37.4°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '51%'
-          }
-        },
-        {
-          id: 20,
-          name: '강태준',
-          age: '만 32',
-          gender: '남',
-          phone: '010-9900-1122',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '90bpm',
-            oxygenSaturation: '93%',
-            bodyTemperature: '37.3°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '60%'
-          }
-        },
-        {
-          id: 21,
-          name: '유지은',
-          age: '만 25',
-          gender: '여',
-          phone: '010-1122-3344',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '92bpm',
-            oxygenSaturation: '94%',
-            bodyTemperature: '37.2°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '54%'
-          }
-        },
-        {
-          id: 22,
-          name: '이준호',
-          age: '만 35',
-          gender: '남', 
-          phone: '010-6677-8899',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '95bpm',
-            oxygenSaturation: '92%',
-            bodyTemperature: '37.6°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '45%'
-          }
-        },
-        {
-          id: 23,
-          name: '박지훈',
-          age: '만 29',
-          gender: '남',
-          phone: '010-2255-6677',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '91bpm',
-            oxygenSaturation: '93%',
-            bodyTemperature: '37.3°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '49%'
-          }
-        },
-        {
-          id: 24,
-          name: '최다혜',
-          age: '만 31',
-          gender: '여',
-          phone: '010-8877-6655',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '89bpm',
-            oxygenSaturation: '94%',
-            bodyTemperature: '37.0°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 C',
-            batteryStatus: '62%'
-          }
-        },
-        {
-          id: 25,
-          name: '문승우',
-          age: '만 34',
-          gender: '남',
-          phone: '010-3366-9988',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '87bpm',
-            oxygenSaturation: '95%',
-            bodyTemperature: '37.2°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 A',
-            batteryStatus: '58%'
-          }
-        },
-        {
-          id: 26,
-          name: '임수진',
-          age: '만 27',
-          gender: '여',
-          phone: '010-4433-2211',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '93bpm',
-            oxygenSaturation: '93%',
-            bodyTemperature: '37.4°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 B',
-            batteryStatus: '51%'
-          }
-        },
-        {
-          id: 27,
-          name: '손민재',
-          age: '만 28',
-          gender: '남',
-          phone: '010-9911-2233',
-          status: 'caution',
-          profileImage: '',
-          vitalSigns: {
-            heartRate: '88bpm',
-            oxygenSaturation: '96%',
-            bodyTemperature: '37.1°C',
-            walk: '15000'
-          },
-          device: {
-            name: '스마트워치 C',
-            batteryStatus: '66%'
-          }
-        }
-      ]
+      workers: [],
+      loading: false,
+      eventSource: null  // SSE 연결 객체 추가
     };
   },
   computed: {
     filteredWorkers() {
-      let filtered = this.workers;
-      
-      // 탭에 따라 필터링
-      if (this.activeTab === 'danger') {
-        filtered = filtered.filter(worker => worker.status === 'danger');
-      } else if (this.activeTab === 'caution') {
-        filtered = filtered.filter(worker => worker.status === 'caution');
-      }
-      
-      return filtered;
+      // 이제 각 탭마다 해당 API에서 데이터를 받아오므로 
+      // 별도 필터링 없이 모든 workers를 반환
+      return this.workers;
     },
     
     // 페이지네이션을 위한 작업자 목록 슬라이싱
@@ -678,7 +163,138 @@ export default {
       return pages;
     }
   },
+  async mounted() {
+    await this.fetchWorkers();
+  },
+  beforeUnmount() {
+    // 컴포넌트가 언마운트될 때 SSE 연결 정리
+    if (this.eventSource) {
+      console.log('WorkerStatus SSE 연결 종료');
+      this.eventSource.close();
+      this.eventSource = null;
+    }
+  },
   methods: {
+    async fetchWorkers() {
+      this.loading = true;
+      
+      // 기존 SSE 연결이 있다면 종료
+      if (this.eventSource) {
+        this.eventSource.close();
+      }
+      
+      try {
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0OTMxNDg1MiwianRpIjoiOGU4MWUxNWItOTIwOS00MzI1LThmNjAtNjg4N2JhYzA4ZDVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlRFU1RfVVNFUiIsIm5iZiI6MTc0OTMxNDg1MiwiZXhwIjoxNzQ5Njc0ODUyfQ._dvzgnDE-_roLAlHIp2W9FjeplylHy2wlv8KTqjQt-Y';
+        
+        // activeTab에 따라 다른 엔드포인트 사용
+        let endpoint = '';
+        if (this.activeTab === 'danger') {
+          endpoint = 'danger-employees';
+        } else if (this.activeTab === 'caution') {
+          endpoint = 'caution-employees';
+        }
+        
+        const url = `http://orion.mokpo.ac.kr:8485/api/web/safety/${endpoint}/stream?token=${token}`;
+        
+        console.log(`WorkerStatus SSE 연결 시작 (${this.activeTab}):`, url);
+        this.eventSource = new EventSource(url);
+        
+        this.eventSource.onopen = () => {
+          console.log(`WorkerStatus SSE 연결 성공 (${this.activeTab})`);
+          this.loading = false;
+        };
+        
+        this.eventSource.onmessage = (event) => {
+          try {
+            console.log(`WorkerStatus SSE 데이터 수신 (${this.activeTab}):`, event.data);
+            
+            if (event.data.trim() === '') {
+              console.log('빈 데이터 수신, 무시');
+              return;
+            }
+            
+            const data = JSON.parse(event.data);
+            console.log(`WorkerStatus 파싱된 데이터 (${this.activeTab}):`, data);
+            
+            if (data.status === 'success' && data.data?.employees) {
+              // API 데이터를 기존 구조에 맞게 변환
+              this.workers = data.data.employees.map((employee, index) => ({
+                id: index + 1,
+                name: employee.basic_info.name,
+                age: `만 ${employee.basic_info.age}`,
+                gender: employee.basic_info.gender === 'M' ? '남' : '여',
+                phone: employee.emergency_contact.phone,
+                status: this.determineStatus(employee),
+                profileImage: employee.basic_info.picture 
+                  ? `http://orion.mokpo.ac.kr:8485${employee.basic_info.picture}` 
+                  : '',
+                vitalSigns: {
+                  heartRate: `${employee.current_vitals.heart_rate}bpm`,
+                  oxygenSaturation: `${employee.current_vitals.spo2}%`,
+                  bodyTemperature: `${employee.current_vitals.temperature}°C`,
+                  walk: employee.current_vitals.steps.toLocaleString()
+                },
+                device: {
+                  name: employee.device_info.device_name,
+                  batteryStatus: `${employee.device_info.battery_level}%`
+                },
+                originalData: employee
+              }));
+              
+              console.log(`WorkerStatus 데이터 업데이트 완료 (${this.activeTab}):`, this.workers);
+            } else {
+              console.log(`WorkerStatus 연결 확인 메시지 또는 예상과 다른 데이터 구조 (${this.activeTab})`);
+            }
+            
+          } catch (error) {
+            console.error(`WorkerStatus SSE 데이터 파싱 오류 (${this.activeTab}):`, error);
+          }
+        };
+        
+        this.eventSource.onerror = (error) => {
+          console.error(`WorkerStatus SSE 연결 오류 (${this.activeTab}):`, error);
+          this.loading = false;
+          
+          // 재연결 시도
+          setTimeout(() => {
+            if (this.eventSource?.readyState === EventSource.CLOSED) {
+              console.log(`WorkerStatus SSE 재연결 시도 (${this.activeTab})...`);
+              this.fetchWorkers();
+            }
+          }, 5000);
+        };
+        
+      } catch (error) {
+        console.error(`WorkerStatus SSE 연결 생성 실패 (${this.activeTab}):`, error);
+        this.loading = false;
+      }
+    },
+    
+    determineStatus(employee) {
+      // API의 risk_info를 기반으로 상태 결정
+      if (employee.risk_info) {
+        if (employee.risk_info.risk_level === '위험') {
+          return 'danger';
+        } else if (employee.risk_info.risk_level === '주의') {
+          return 'caution';
+        }
+      }
+      
+      // 생체 신호를 기반으로 상태 판단
+      const vitals = employee.current_vitals;
+      const isHighHeartRate = vitals.heart_rate > 100;
+      const isLowSpo2 = vitals.spo2 < 95;
+      const isHighTemp = vitals.temperature > 37.5;
+      
+      if ((isHighHeartRate && isLowSpo2) || isHighTemp) {
+        return 'danger';
+      } else if (isHighHeartRate || isLowSpo2 || vitals.temperature > 37.0) {
+        return 'caution';
+      }
+      
+      return 'normal';
+    },
+    
     toggleDeviceInfo(workerId) {
       if (this.expandedDevices.includes(workerId)) {
         // 이미 확장된 경우, 배열에서 제거 (접기)
@@ -704,10 +320,11 @@ export default {
       }
     },
   },
-    watch: {
-    // activeTab이 변경될 때마다 currentPage를 1로 리셋
+  watch: {
+    // activeTab이 변경될 때마다 currentPage를 1로 리셋하고 새로운 API 호출
     activeTab() {
       this.currentPage = 1;
+      this.fetchWorkers(); // 탭 변경 시 새로운 API 엔드포인트로 연결
     }
   }
 };

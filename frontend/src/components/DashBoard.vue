@@ -21,8 +21,12 @@
           @show-worker-detail="$emit('show-worker-detail', $event)"
         />
       </div>
-      <!-- 지도 섹션 -->
-      <MapSection ref="mapSection" />
+      <!-- 지도 섹션 - 위험자 데이터 전달 -->
+      <MapSection 
+        ref="mapSection" 
+        :heat-risk-workers="heatRiskWorkers"
+        :fall-risk-workers="fallRiskWorkers"
+      />
     </div>
     
     <!-- 차트 섹션 - 바이오메트릭과 온열질환자/낙상자 통계 나란히 -->

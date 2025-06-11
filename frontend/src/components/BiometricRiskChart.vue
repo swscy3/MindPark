@@ -15,16 +15,11 @@
         <span class="legend-percent">{{ item.percent }}%</span>
       </div>
     </div>
-    <!-- 에러 메시지 -->
-    <div v-if="error" class="error-message">
-      {{ error }}
-    </div>
   </div>
 </template>
 
 <script>
 import Chart from 'chart.js/auto';
-import axios from 'axios';
 
 export default {
   name: 'BiometricRiskChart',
@@ -37,24 +32,29 @@ export default {
       type: Number,
       default: 80
     },
-    refreshInterval: {
-      type: Number,
-      default: 10000 // 더미데이터용 10초마다 새로고침
+    riskWorkersData: {
+      type: Object,
+      default: () => ({
+        heatRiskWorkers: [],
+        fallRiskWorkers: []
+      })
     }
   },
   data() {
     return {
-      chart: null,
-      biometricData: [], // 백엔드에서 받은 위험/주의 작업자 데이터
-      error: null,
-      refreshTimer: null
+      chart: null
     };
   },
   computed: {
-    // 위험도별 인원 계산
+    // 실제 위험도별 인원 계산 (SSE 데이터 기반)
     riskCounts() {
-      const dangerCount = this.biometricData.filter(worker => worker.riskLevel === "위험").length;
-      const cautionCount = this.biometricData.filter(worker => worker.riskLevel === "주의").length;
+      const allRiskWorkers = [
+        ...(this.riskWorkersData.heatRiskWorkers || []),
+        ...(this.riskWorkersData.fallRiskWorkers || [])
+      ];
+      
+      const dangerCount = allRiskWorkers.filter(worker => worker.risk_level === "위험").length;
+      const cautionCount = allRiskWorkers.filter(worker => worker.risk_level === "주의").length;
       const normalCount = this.totalWorkers - (dangerCount + cautionCount);
       
       return {
@@ -65,23 +65,25 @@ export default {
     },
     // 범례 아이템들
     legendItems() {
+      const total = this.totalWorkers || 1; // 0으로 나누기 방지
+      
       return [
         {
           label: '정상',
           count: this.riskCounts.normal,
-          percent: ((this.riskCounts.normal / this.totalWorkers) * 100).toFixed(1),
+          percent: ((this.riskCounts.normal / total) * 100).toFixed(1),
           class: 'normal'
         },
         {
           label: '주의',
           count: this.riskCounts.caution,
-          percent: ((this.riskCounts.caution / this.totalWorkers) * 100).toFixed(1),
+          percent: ((this.riskCounts.caution / total) * 100).toFixed(1),
           class: 'caution'
         },
         {
           label: '위험',
           count: this.riskCounts.danger,
-          percent: ((this.riskCounts.danger / this.totalWorkers) * 100).toFixed(1),
+          percent: ((this.riskCounts.danger / total) * 100).toFixed(1),
           class: 'danger'
         }
       ];
@@ -160,14 +162,20 @@ export default {
     }
   },
   mounted() {
-    this.fetchBiometricData();
-    this.startAutoRefresh();
+    this.$nextTick(() => {
+      this.initChart();
+    });
   },
   beforeUnmount() {
     this.destroyChart();
-    this.stopAutoRefresh();
   },
   watch: {
+    riskWorkersData: {
+      handler() {
+        this.updateChart();
+      },
+      deep: true
+    },
     riskCounts: {
       handler() {
         this.updateChart();
@@ -176,42 +184,6 @@ export default {
     }
   },
   methods: {
-    // 백엔드에서 생체데이터 가져오기
-    async fetchBiometricData() {
-      this.error = null;
-      
-      try {
-        // 더미 데이터 - 위험/주의 상태인 작업자들만
-        const dummyData = [
-          { name: "김철수", temperature: 38.2, heartRate: 125, riskLevel: "위험" },
-          { name: "이영희", temperature: 38.5, heartRate: 135, riskLevel: "위험" },
-          { name: "박민수", temperature: 37.8, heartRate: 122, riskLevel: "위험" },
-          { name: "최순자", temperature: 37.6, heartRate: 115, riskLevel: "주의" },
-          { name: "정다운", temperature: 37.7, heartRate: 110, riskLevel: "주의" },
-          { name: "김영호", temperature: 37.5, heartRate: 108, riskLevel: "주의" },
-          { name: "송미래", temperature: 37.9, heartRate: 118, riskLevel: "주의" },
-          { name: "장민석", temperature: 37.6, heartRate: 112, riskLevel: "주의" }
-        ];
-        
-        this.biometricData = dummyData;
-        console.log('더미 데이터 로드 완료:', this.biometricData);
-        
-        // 차트 초기화 또는 업데이트
-        this.$nextTick(() => {
-          if (!this.chart) {
-            this.initChart();
-          } else {
-            this.updateChart();
-          }
-        });
-        
-      } catch (err) {
-        console.error('데이터 로딩 중 오류:', err);
-        this.error = '데이터를 불러오는 중 오류가 발생했습니다.';
-        this.biometricData = [];
-      }
-    },
-    
     // 차트 초기화
     initChart() {
       if (!this.$refs.chartCanvas) return;
@@ -223,6 +195,8 @@ export default {
         data: this.chartData,
         options: this.chartOptions
       });
+      
+      console.log('차트 초기화');
     },
     
     // 차트 업데이트
@@ -239,28 +213,6 @@ export default {
         this.chart.destroy();
         this.chart = null;
       }
-    },
-    
-    // 자동 새로고침 시작
-    startAutoRefresh() {
-      if (this.refreshInterval > 0) {
-        this.refreshTimer = setInterval(() => {
-          this.fetchBiometricData();
-        }, this.refreshInterval);
-      }
-    },
-    
-    // 자동 새로고침 중지
-    stopAutoRefresh() {
-      if (this.refreshTimer) {
-        clearInterval(this.refreshTimer);
-        this.refreshTimer = null;
-      }
-    },
-    
-    // 수동 새로고침
-    refresh() {
-      this.fetchBiometricData();
     }
   }
 }

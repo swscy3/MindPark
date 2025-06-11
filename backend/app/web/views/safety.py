@@ -1,6 +1,6 @@
 # app/web/safety.py
-from flask import Blueprint, jsonify, Response
-from flask_jwt_extended import jwt_required
+from flask import Blueprint, jsonify, Response, request
+from flask_jwt_extended import decode_token, verify_jwt_in_request, get_jwt
 from datetime import datetime
 import time
 import json
@@ -15,6 +15,26 @@ from app.model import (
 )
 
 safety_bp = Blueprint('safety', __name__)
+
+def verify_token_from_query():
+    """쿼리 파라미터에서 토큰을 검증하는 함수"""
+    token = request.args.get('token')
+    if not token:
+        return False, "토큰이 필요합니다"
+    
+    try:
+        # 토큰 디코드 및 검증
+        decoded_token = decode_token(token)
+        
+        # 토큰 만료 확인
+        from datetime import datetime, timezone
+        exp = decoded_token.get('exp')
+        if exp and datetime.fromtimestamp(exp, tz=timezone.utc) < datetime.now(timezone.utc):
+            return False, "토큰이 만료되었습니다"
+            
+        return True, decoded_token
+    except Exception as e:
+        return False, f"유효하지 않은 토큰입니다: {str(e)}"
 
 def convert_picture_to_url(picture_path):
     """절대 경로를 웹 URL로 변환"""
@@ -113,12 +133,16 @@ def get_employees_by_risk_level_data(risk_level, app_context):
             raise e
 
 @safety_bp.route('/danger-employees/stream')
-@jwt_required()
 def danger_employees_stream():
     """
     위험 직원 실시간 스트림 API
-    GET /api/web/safety/danger-employees/stream
+    GET /api/web/safety/danger-employees/stream?token=JWT_TOKEN
     """
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
+    
     # 앱 인스턴스 생성
     app = create_app()
     
@@ -152,7 +176,7 @@ def danger_employees_stream():
                 }
                 yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
-            # 30초 대기 (위험자는 더 자주 체크)
+            # 5분 대기 (위험자는 더 자주 체크)
             time.sleep(300)
     
     return Response(
@@ -168,12 +192,16 @@ def danger_employees_stream():
     )
 
 @safety_bp.route('/caution-employees/stream')
-@jwt_required()
 def caution_employees_stream():
     """
     주의 직원 실시간 스트림 API
-    GET /api/web/safety/caution-employees/stream
+    GET /api/web/safety/caution-employees/stream?token=JWT_TOKEN
     """
+    # 토큰 검증
+    is_valid, result = verify_token_from_query()
+    if not is_valid:
+        return jsonify({"error": result}), 401
+    
     # 앱 인스턴스 생성
     app = create_app()
     
@@ -207,7 +235,7 @@ def caution_employees_stream():
                 }
                 yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
             
-            # 1분 대기 (주의는 조금 덜 자주)
+            # 5분 대기 (주의는 조금 덜 자주)
             time.sleep(300)
     
     return Response(

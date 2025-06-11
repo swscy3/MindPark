@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div class="statistics-graph">
     <h3>{{ title }}</h3>
     <div class="chart-container">
@@ -149,4 +149,4 @@ export default {
 }
 </script>
 
-<style src="../css/StatisticsGraph.css"></style>
+<style src="../css/StatisticsGraph.css"></style> -->
