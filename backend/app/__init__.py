@@ -100,8 +100,8 @@ def create_app(config_name=None):
     from app.mobile.views import mobile_bp
     app.register_blueprint(mobile_bp, url_prefix='/api/mobile')
 
-    from app.util import utils_bp
-    app.register_blueprint(utils_bp, url_prefix='/api')
+    from app.util import util_bp
+    app.register_blueprint(util_bp, url_prefix='/api')
 
     from app.web.views import web_bp
     app.register_blueprint(web_bp, url_prefix='/api/web')
