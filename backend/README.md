@@ -213,6 +213,8 @@ WHETHER_API_URL=http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltr
 
 NX=51
 NY=69
+
+PICTURE_PATH=/root
 ```
 
 **5. 데이터베이스 초기화**

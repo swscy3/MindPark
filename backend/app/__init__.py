@@ -70,7 +70,10 @@ def create_app(config_name=None):
         return {"message": "유효하지 않은 토큰입니다."}, 401
 
     # === 프로필 사진 정적 파일 서빙 === 
-    picture_path = '/root/MindPark/database/picture'
+    # 🔧 환경변수에서 picture path 읽어오기 (필수)
+    picture_path = os.environ.get('PICTURE_PATH')
+    if not picture_path:
+        raise ValueError("PICTURE_PATH 환경변수가 설정되지 않았습니다. .env 파일에 PICTURE_PATH를 설정해주세요.")
 
     @app.route('/uploads/pictures/<filename>')
     def uploaded_pictures(filename):
