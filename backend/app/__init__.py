@@ -109,8 +109,11 @@ def create_app(config_name=None):
     from app.web.views import web_bp
     app.register_blueprint(web_bp, url_prefix='/api/web')
 
-    # 정적 Vue 파일 경로 (빌드된 파일이 있는 위치)
-    vue_dist_path = os.path.join(os.path.dirname(__file__),  '../../frontend/dist')
+    # === 정적 Vue 파일 경로 ===
+    # 🔧 환경변수에서 Vue dist path 읽어오기 (필수)
+    vue_dist_path = os.environ.get('VUE_DIST_PATH')
+    if not vue_dist_path:
+        raise ValueError("VUE_DIST_PATH 환경변수가 설정되지 않았습니다. .env 파일에 VUE_DIST_PATH를 설정해주세요.")
 
     # Vue 정적 파일 서빙 라우트
     @app.route('/', defaults={'path': ''})
