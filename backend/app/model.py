@@ -93,7 +93,7 @@ class DeviceManagement(db.Model):
 class DeviceMeasurement(db.Model):
     __tablename__ = 'DEVICE_MEASUREMENT'
     
-    measurement_id = db.Column(db.String(10), primary_key=True)
+    measurement_id = db.Column(db.String(25), primary_key=True)
     emp_id = db.Column(db.String(10), db.ForeignKey('EMPLOYEE.emp_id'))
     device_id = db.Column(db.String(10), db.ForeignKey('DEVICE.device_id'))
     measure_time = db.Column(db.DateTime, default=datetime.utcnow)
