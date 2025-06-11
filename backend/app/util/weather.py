@@ -3,9 +3,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from datetime import datetime
 import requests
 
-util_bp = Blueprint('util', __name__)
+weather_bp = Blueprint('util', __name__)
 
-@util_bp.route('/weather', methods=['GET'])
+@weather_bp.route('/weather', methods=['GET'])
 @jwt_required()
 def get_weather():
     """날씨 정보 조회 API"""
