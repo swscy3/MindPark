@@ -3,7 +3,6 @@ from flask import Blueprint, jsonify, Response, request
 from datetime import datetime, date, timedelta
 import time
 import json
-import pytz
 
 # Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
 from app import create_app, db
@@ -13,14 +12,14 @@ from app.model import (
 )
 
 from app.util.auth import verify_token_from_query
+from app.util.time_utils import (  # 🔧 공용 유틸리티 사용
+    get_korea_today, 
+    get_korea_now_iso, 
+    to_korea_time,
+    get_korea_datetime
+)
 
 employees_bp = Blueprint('employees', __name__)
-
-def get_korea_today():
-    """한국 시간 기준 오늘 날짜 반환"""
-    korea_tz = pytz.timezone('Asia/Seoul')
-    korea_now = datetime.now(korea_tz)
-    return korea_now.date()
 
 def get_attendance_status(emp_id, today):
     """출근 상태 확인 (한국 시간 기준)"""
@@ -44,10 +43,9 @@ def debug_attendance(emp_id):
     try:
         # 서버 시간 정보
         utc_now = datetime.utcnow()
-        korea_tz = pytz.timezone('Asia/Seoul')
-        korea_now = datetime.now(korea_tz)
+        korea_now = get_korea_datetime()  # 🔧 공용 유틸리티 사용
         server_today = date.today()
-        korea_today = get_korea_today()
+        korea_today = get_korea_today()  # 🔧 공용 유틸리티 사용
         
         # 해당 직원의 출근 기록 조회 (최근 7일)
         recent_attendances = DeviceManagement.query\
@@ -59,8 +57,8 @@ def debug_attendance(emp_id):
         attendance_records = []
         for att in recent_attendances:
             attendance_records.append({
-                "check_in": att.check_in.isoformat() if att.check_in else None,
-                "check_out": att.check_out.isoformat() if att.check_out else None,
+                "check_in": to_korea_time(att.check_in),  # 🔧 한국시간 변환
+                "check_out": to_korea_time(att.check_out),  # 🔧 한국시간 변환
                 "check_in_date": att.check_in.date().isoformat() if att.check_in else None
             })
         
@@ -78,8 +76,8 @@ def debug_attendance(emp_id):
             "korea_today": korea_today.isoformat(),
             "today_attendance_found": today_attendance is not None,
             "today_attendance": {
-                "check_in": today_attendance.check_in.isoformat() if today_attendance and today_attendance.check_in else None,
-                "check_out": today_attendance.check_out.isoformat() if today_attendance and today_attendance.check_out else None
+                "check_in": to_korea_time(today_attendance.check_in) if today_attendance else None,  # 🔧 한국시간 변환
+                "check_out": to_korea_time(today_attendance.check_out) if today_attendance else None   # 🔧 한국시간 변환
             } if today_attendance else None,
             "recent_attendances": attendance_records,
             "attendance_status": get_attendance_status(emp_id, korea_today)
@@ -123,7 +121,7 @@ def employees_list_stream():
                         .all()
                     
                     # 한국 시간 기준 오늘 날짜
-                    today = get_korea_today()
+                    today = get_korea_today()  # 🔧 공용 유틸리티 사용
                     
                     employees_data = []
                     
@@ -141,7 +139,7 @@ def employees_list_stream():
                     
                     # 응답 데이터 생성
                     response_data = {
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp": get_korea_now_iso(),  # 🔧 한국시간 ISO 형식
                         "korea_today": today.isoformat(),  # 디버깅용 추가
                         "status": "success",
                         "data": {
@@ -155,7 +153,7 @@ def employees_list_stream():
                 except Exception as e:
                     print(f"[ERROR] 직원 목록 조회 오류: {str(e)}")
                     error_data = {
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp": get_korea_now_iso(),  # 🔧 한국시간 ISO 형식
                         "status": "error",
                         "message": "직원 목록 조회 중 오류가 발생했습니다."
                     }
@@ -192,7 +190,7 @@ def get_employee_detail(emp_id):
         employee = Employee.query.filter_by(emp_id=emp_id).first()
         if not employee:
             return jsonify({
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": get_korea_now_iso(),  # 🔧 한국시간 ISO 형식
                 "status": "error",
                 "message": f"사번 {emp_id}인 직원을 찾을 수 없습니다."
             }), 404
@@ -216,7 +214,7 @@ def get_employee_detail(emp_id):
         
         # 응답 데이터 생성
         response_data = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_korea_now_iso(),  # 🔧 한국시간 ISO 형식
             "status": "success",
             "data": {
                 "name": employee.name,
@@ -229,8 +227,9 @@ def get_employee_detail(emp_id):
                 "steps": latest_measurement.walk if latest_measurement else None,
                 "device_name": device.product if device else None,
                 "battery_level": latest_measurement.battery if latest_measurement else None,
-                "latitude": latest_measurement.loc_y if latest_measurement else None,   # 🔧 수정
-                "longitude": latest_measurement.loc_x if latest_measurement else None   # 🔧 수정
+                "latitude": latest_measurement.loc_y if latest_measurement else None,   # 위도
+                "longitude": latest_measurement.loc_x if latest_measurement else None,  # 경도
+                "last_measurement_time": to_korea_time(latest_measurement.measure_time) if latest_measurement else None  # 🔧 추가: 마지막 측정 시간
             }
         }
         
@@ -239,7 +238,7 @@ def get_employee_detail(emp_id):
     except Exception as e:
         print(f"[ERROR] 직원 상세정보 조회 오류 (emp_id: {emp_id}): {str(e)}")
         return jsonify({
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": get_korea_now_iso(),  # 🔧 한국시간 ISO 형식
             "status": "error",
             "message": "상세정보 조회 중 오류가 발생했습니다."
         }), 500

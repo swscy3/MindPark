@@ -45,6 +45,7 @@ backend/
     │   ├── __init__.py             # 유틸 블루프린트 통합
     │   ├── util.py                 # 날씨 정보
     │   ├── auth.py                 # 토큰 쿼리 검증 및 계정 정보 변경 함수
+    │   ├── time_utils.py           # 한국시간 변환 공용 유틸리티
     │   └── debug.py                # 디버깅용 개발자 함수
     └── mobile/             # 모바일 근로자 인터페이스
         ├── views/          # 모바일 블루프린트
@@ -89,12 +90,20 @@ backend/
 
 **app/schema.py**: 요청/응답 스키마 정의 (Marshmallow)
 
+**app/util/**: 공통 유틸리티 함수들
+
+- `auth.py`: JWT 토큰 검증 및 계정 관리
+- `time_utils.py`: 한국시간 변환 및 시간대 처리 공용 함수
+- `util.py`: 날씨 API 연동
+- `debug.py`: 개발용 디버깅 도구
+
 ## 기술 스택
 
 - **백엔드**: Flask 2.3+, Python 3.11+
 - **데이터베이스**: SQLAlchemy, MariaDB
 - **인증**: JWT (Flask-JWT-Extended)
 - **검증**: Marshmallow
+- **시간대 처리**: pytz (한국시간 KST 자동 변환)
 - **개발 도구**: Docker, Git
 
 ## 설치 및 실행 방법
@@ -239,11 +248,12 @@ python app.py
 - 실시간 알림 시스템
 - 생체정보 전송 및 모니터링
 
-### 4. 보안
+### 4. 보안 및 안정성
 
 - JWT 기반 인증 시스템
 - 토큰 블랙리스트 관리
 - 관리자-사용자 권한 분리
+- 한국시간(KST) 자동 변환으로 일관된 시간 데이터 제공
 
 ## 개발 환경
 

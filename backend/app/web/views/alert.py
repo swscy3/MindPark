@@ -9,6 +9,7 @@ import json
 from app import create_app, db
 from app.model import HealthAnomaly
 from app.util.auth import verify_token_from_query
+from app.util.time_utils import to_korea_time, get_korea_now  # 🔧 공용 유틸리티 사용
 
 alert_bp = Blueprint('alert_bp', __name__)
 
@@ -52,19 +53,19 @@ def health_anomaly_stream():
                                 'x': anomaly.loc_x,
                                 'y': anomaly.loc_y
                             },
-                            'anomaly_time': anomaly.anomaly_time.isoformat() if anomaly.anomaly_time else None,
+                            'anomaly_time': to_korea_time(anomaly.anomaly_time),  # 한국시간 변환
                             'status': anomaly.status,
                             'management': {
                                 'risk': anomaly.risk,
                                 'action_content': anomaly.action_content,
-                                'updated_at': anomaly.updated_at.isoformat() if anomaly.updated_at else None
+                                'updated_at': to_korea_time(anomaly.updated_at)  # 한국시간 변환
                             }
                         }
                         
                         formatted_data.append(formatted_item)
                     
                     # 응답 데이터 생성
-                    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    current_time = get_korea_now()  # 한국 현재시간
                     response_data = {
                         'status': 'success',
                         'timestamp': current_time,
@@ -83,7 +84,7 @@ def health_anomaly_stream():
                     error_info = {
                         'status': 'error',
                         'message': '데이터 조회 중 오류가 발생했습니다.',
-                        'timestamp': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                        'timestamp': get_korea_now()  # 한국 현재시간
                     }
                     yield f"data: {json.dumps(error_info, ensure_ascii=False)}\n\n"
             
@@ -148,11 +149,11 @@ def get_health_anomaly():
             'emp_id': anomaly.emp_id,                  # 사번
             'emp_name': employee_name,                 # 이름
             'symptom': anomaly.symptom,                # 증상
-            'anomaly_time': anomaly.anomaly_time.isoformat() if anomaly.anomaly_time else None,  # 시간
+            'anomaly_time': to_korea_time(anomaly.anomaly_time),  # 한국시간 변환
             'status': anomaly.status,                  # 상태
             'action_content': anomaly.action_content,  # 조치내용
             'risk': anomaly.risk,                      # 추가 정보
-            'updated_at': anomaly.updated_at.isoformat() if anomaly.updated_at else None
+            'updated_at': to_korea_time(anomaly.updated_at)  # 한국시간 변환
         }
         
         return jsonify({
@@ -163,7 +164,7 @@ def get_health_anomaly():
         
     except Exception as e:
         # 터미널에 에러 출력
-        print(f"[ERROR] 건강 이상 데이터 조회 오류 (anomaly_id: {data.get('anomaly_id') if data else 'unknown'}): {str(e)}")
+        print(f"[ERROR] 건강 이상 데이터 조회 오류 (anomaly_id: {anomaly_id if 'anomaly_id' in locals() else 'unknown'}): {str(e)}")
         
         return jsonify({
             'status': 'error',
@@ -250,7 +251,7 @@ def update_health_anomaly():
             'anomaly_id': anomaly.anomaly_id,
             'status': anomaly.status,
             'action_content': anomaly.action_content,
-            'updated_at': anomaly.updated_at.isoformat() if anomaly.updated_at else None,
+            'updated_at': to_korea_time(anomaly.updated_at),  # 한국시간 변환
             'updated_by': current_user
         }
         
@@ -265,7 +266,7 @@ def update_health_anomaly():
         db.session.rollback()
         
         # 터미널에 에러 출력
-        print(f"[ERROR] 건강 이상 데이터 수정 오류 (anomaly_id: {data.get('anomaly_id') if data else 'unknown'}): {str(e)}")
+        print(f"[ERROR] 건강 이상 데이터 수정 오류 (anomaly_id: {data.get('anomaly_id') if 'data' in locals() and data else 'unknown'}): {str(e)}")
         
         return jsonify({
             'status': 'error',
