@@ -7,7 +7,7 @@ import random
 from sqlalchemy import func
 import tensorflow as tf
 
-from ...model import DeviceMeasurement, DeviceManagement, EmployeeHealth, Employee, HealthAnomaly
+from ...model import DeviceMeasurement, DeviceManagement, EmployeeHealth, Employee, HealthAnomaly, Admin  # ✅ Admin 추가
 from ... import db
 
 # acc_gyr 데이터 로딩 (전역에서 한 번만)
@@ -74,6 +74,11 @@ class DeviceService:
             ).distinct().all()
             emp_ids = [emp[0] for emp in emp_ids if emp[0] != current_user]
 
+            # 🔽 관리자 제외 처리
+            admin_ids = db.session.query(Admin.admin_id).all()
+            admin_ids = [admin[0] for admin in admin_ids]
+            emp_ids = [emp_id for emp_id in emp_ids if emp_id not in admin_ids]
+
             if len(emp_ids) < 3:
                 return {"status": "error", "message": "온열질환 및 낙상 더미 생성을 위한 출근 인원이 3명 이상 필요합니다."}
 
@@ -119,7 +124,7 @@ class DeviceService:
             row['battery'] = random.randint(0, 100)
             row['hr'] = 150
             row['temp'] = 40.0
-            row['resp'] = random.uniform(12, 20)
+            row['resp'] = 25
             row['walk'] = random.randint(4000, 6000)
             row['loc_x'], row['loc_y'] = random_location()
             sample = acc_gyr_df[acc_gyr_df['label'].isin(labels_normal)].sample(1).iloc[0]
@@ -258,7 +263,6 @@ class DeviceService:
 
             db.session.commit()
 
-            # current_user에 해당하는 heat 결과만 따로 추출
             user_heat_result = next((res for res in results if res["emp_id"] == current_user), None)
             user_heat_status = user_heat_result["heat_risk"] if user_heat_result else "정상"
 
@@ -269,7 +273,6 @@ class DeviceService:
                 "results": [user_heat_result] if user_heat_result else [],
                 "user_heat_alert": user_heat_status
             }
-
 
         except Exception as e:
             db.session.rollback()

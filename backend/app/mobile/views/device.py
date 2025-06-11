@@ -22,26 +22,38 @@ def record_measurement():
     - 터미널에 출력
     """
     try:
+        
+        print(f"=== 요청 디버깅 ===")
+        print(f"Content-Type: {request.content_type}")
+        print(f"Raw data: {request.get_data()}")
+        
+        # JWT 토큰에서 사용자 ID 추출
+        current_user = get_jwt_identity()
+        print(f"Current user: {current_user}")
+
+        # 요청에서 데이터 추출
+        data = request.get_json()
+        print(f"Parsed JSON: {data}")
+
+        # 필수 데이터 확인
+        if not data or 'product' not in data:
+            print("에러: product 필드 없음")
+            return jsonify({'error': '디바이스 이름(product)은 필수입니다'}), 400
         # JWT 토큰에서 사용자 ID 추출
         current_user = get_jwt_identity()
 
         # 요청에서 데이터 추출
         data = request.get_json()
 
-        # data가 None인 경우 빈 딕셔너리로 초기화
-        if not data:
-            data = {}
-
-        # product가 없을 경우 하드코딩된 기본값 사용
-        product_name = data.get('product', 'Galaxy Watch Active 2')  # 여기에 실제 사용할 디바이스 이름을 넣으세요
-        
-        print(f"사용할 product: {product_name}")  # 디버깅용 출력
+        # 필수 데이터 확인
+        if not data or 'product' not in data:
+            return jsonify({'error': '디바이스 이름(product)은 필수입니다'}), 400
 
         # 디바이스 이름(product)으로 디바이스 ID 조회
-        device = Device.query.filter_by(product=product_name).first()
+        device = Device.query.filter_by(product=data.get('product')).first()
 
         if not device:
-            return jsonify({'error': f'디바이스 이름 "{product_name}"과 일치하는 장치를 찾을 수 없습니다'}), 404
+            return jsonify({'error': '해당 디바이스 이름과 일치하는 장치를 찾을 수 없습니다'}), 404
 
         # ✅ 서비스 함수 호출
         result = DeviceService.process_measurement(current_user, device, data)

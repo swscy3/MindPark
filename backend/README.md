@@ -14,129 +14,146 @@ backend/
 ├── .env                    # 환경 변수 파일
 ├── .gitignore              # Git 무시 파일
 ├── database/               # 데이터베이스 관련
-│   ├── datafile/                           # 데이터베이스 초기 데이터 저장 폴더
-│   │   ├── admin.csv                       # 관리자 목록
-│   │   ├── device_measurement.csv          # 스마트 워치 측정 데이터
-│   │   ├── device.csv                      # 스마트 워치 목록
-│   │   ├── emergency_contact.csv           # 비상 연락망 정보
-│   │   ├── employee_attendance.csv         # 직원 출퇴근 기록
-│   │   ├── employee_health.csv             # 직원 건강 정보
-│   │   ├── employee.csv                    # 직원 인적 사항
-│   │   ├── health_anomaly.csv              # 이상 징후 발생 기록
+│   ├── datafile/           # 데이터베이스 초기 데이터 저장 폴더
+│   │   ├── admin.csv       # 관리자 목록
+│   │   ├── device_measurement.csv  # 스마트 워치 측정 데이터
+│   │   ├── device.csv      # 스마트 워치 목록
+│   │   ├── emergency_contact.csv   # 비상 연락망 정보
+│   │   ├── employee_attendance.csv # 직원 출퇴근 기록
+│   │   ├── employee_health.csv     # 직원 건강 정보
+│   │   ├── employee.csv    # 직원 인적 사항
+│   │   ├── health_anomaly.csv      # 이상 징후 발생 기록
 │   │   └── picture/        # 사진 파일
-│   ├── create_schema.py       # MySQL 테이블 생성
-│   └── create_table.py        # CSV 파일 테이블에 삽입
+│   ├── create_schema.py    # MySQL 테이블 생성
+│   └── create_table.py     # CSV 파일 테이블에 삽입
 └── app/                    # 애플리케이션 패키지
     ├── __init__.py         # Flask 앱 초기화
     ├── model.py            # 데이터베이스 모델 (통합)
     ├── schema.py           # 공통 스키마 정의
     ├── web/                # 웹 관리자 인터페이스
     │   ├── views/          # 웹 블루프린트
-    │   │   ├── __init__.py # 웹 블루프린트 통합
-    │   │   ├── auth.py     # 웹 인증 블루프린트
-    │   │   ├── bio.py      # 생체정보 블루프린트
-    │   │   └── dashboard.py # 대시보드 블루프린트
-    │   ├── schemas/        # 웹 스키마
-    │   │   ├── __init__.py # 웹 스키마 통합
-    │   │   ├── auth_schema.py # 웹 인증 스키마
-    │   │   ├── bio_schema.py  # 생체정보 스키마
-    │   │   └── dashboard_schema.py # 대시보드 스키마
+    │   │   ├── __init__.py         # 웹 블루프린트 통합
+    │   │   ├── auth.py             # 웹 인증 블루프린트
+    │   │   ├── alert.py            # 알림로그 블루프린트
+    │   │   ├── employees.py        # 근로자현황 블루프린트
+    │   │   ├── safety.py           # 위험 근로자 현황 블루프린트
+    │   │   └── monitoring.py       # 대시보드 블루프린트
     │   └── services/       # 비즈니스 로직
-    │       ├── __init__.py # 웹 서비스 통합
-    │       ├── auth_service.py    # 웹 인증 서비스
-    │       ├── dashboard_service.py # 대시보드 서비스
-    │       └── bio_service.py     # 생체정보 관련 서비스
+    │       ├── __init__.py         # 웹 서비스 통합
+    │       └── auth_service.py     # 웹 인증 서비스
     ├── util/               # 공통 유틸리티 라우트
-    │   ├── __init__.py     # 유틸 블루프린트 통합
-    │   ├── util.py         # 날씨 정보
-    │   └── debug.py        # 디버깅용 개발자 함수
-    └── mobile/             # 모바일 앱 인터페이스
-        └── mobile.py       # 모바일 통합 라우트 (리팩토링 예정)
+    │   ├── __init__.py             # 유틸 블루프린트 통합
+    │   ├── util.py                 # 날씨 정보
+    │   ├── auth.py                 # 토큰 쿼리 검증 및 계정 정보 변경 함수
+    │   └── debug.py                # 디버깅용 개발자 함수
+    └── mobile/             # 모바일 근로자 인터페이스
+        ├── views/          # 모바일 블루프린트
+        │   ├── __init__.py         # 모바일 블루프린트 통합
+        │   ├── auth.py             # 모바일 인증 블루프린트
+        │   ├── device.py           # 모바일 측정 블루프린트
+        │   └── profile.py          # 개인정보 수정 블루프린트
+        └── services/       # 비즈니스 로직
 ```
 
 ## 모듈 설명
 
 ### 핵심 모듈
 
-* **app/model.py** : 통합 데이터베이스 모델
+**app/model.py**: 통합 데이터베이스 모델
 
-  * `Employee`: 직원 정보 및 계정 관리
-  * `Admin`: 관리자 권한 관리
-  * `Device`, `DeviceManagement`, `DeviceMeasurement`: 웨어러블 디바이스 관리 및 측정 데이터
-  * `EmployeeHealth`, `EmergencyContact`: 건강 정보 및 비상연락처
-  * `HealthAnomaly`: 건강 이상 징후 기록
-  * `TokenBlocklist`: JWT 토큰 블랙리스트
-* **app/web/** : 웹 관리자 인터페이스
+- `Employee`: 직원 기본정보 및 계정 관리
+- `Admin`: 관리자 권한 설정
+- `Device`: 웨어러블 디바이스 관리
+- `DeviceManagement`: 직원 출입 기록 (EMPLOYEE_ATTENDANCE)
+- `DeviceMeasurement`: 센서 측정 데이터 (생체정보, 위치, 가속도 등)
+- `EmployeeHealth`: 직원 건강 상태 정보
+- `EmergencyContact`: 비상연락처
+- `HealthAnomaly`: 건강 이상 징후 기록 및 처리 상태 관리
+- `TokenBlocklist`: JWT 토큰 블랙리스트
 
-  * `auth.py`: 관리자 로그인, 로그아웃, 직원 등록
-  * `dashboard.py`: 대시보드 헤더, 온열질환 현황, 통계
-  * `bio.py`: 작업자 프로필 및 생체정보 조회
-  * `services/`: 비즈니스 로직 분리 (MVC 패턴)
-* **app/mobile/** : 모바일 앱 인터페이스
+**app/web/**: 웹 관리자 인터페이스
 
-  * `mobile.py`: 모바일 로그인, 마이페이지 관리
-  * `mobile_health.py`: 기기 정보, 헬스커넥트 데이터, 알림
-* **app/schema.py** : 요청/응답 스키마 정의 (Marshmallow)
+- `views/auth.py`: 웹 관리자 인증 (로그인, 로그아웃)
+- `views/monitoring.py`: 대시보드 및 실시간 모니터링
+- `views/employees.py`: 근로자 현황 및 생체정보 조회
+- `views/alert.py`: 알림로그 관리 (건강 이상징후 처리)
+- `views/safety.py`: 위험 근로자 현황 모니터링
+- `services/`: 비즈니스 로직 분리 (MVC 패턴)
+
+**app/mobile/**: 모바일 앱 인터페이스
+
+- `views/auth.py`: 모바일 근로자 인증 (로그인, 로그아웃)
+- `views/profile.py`: 개인정보 수정 (마이페이지 관리)
+- `views/device.py`: 디바이스 측정 데이터 처리 (센서 데이터 수집)
+- `services/`: 비즈니스 로직 분리 (MVC 패턴)
+
+**app/schema.py**: 요청/응답 스키마 정의 (Marshmallow)
 
 ## 기술 스택
 
-* **백엔드** : Flask 2.3+, Python 3.11+
-* **데이터베이스** : SQLAlchemy, MySQL
-* **인증** : JWT (Flask-JWT-Extended)
-* **검증** : Marshmallow
-* **개발 도구** : Docker, Git
+- **백엔드**: Flask 2.3+, Python 3.11+
+- **데이터베이스**: SQLAlchemy, MariaDB
+- **인증**: JWT (Flask-JWT-Extended)
+- **검증**: Marshmallow
+- **개발 도구**: Docker, Git
 
 ## 설치 및 실행 방법
 
 ### 필수 요구사항
 
-* Python 3.11 이상
-* MySQL 서버
-* pip 및 가상환경
+- Python 3.11.12
+- MySQL 서버
+- pip 및 가상환경
 
 ### 설치 과정
 
-1. 저장소 클론 및 이동
+**1. 저장소 클론 및 이동**
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/swscy3/MindPark.git
 cd backend
 ```
 
-2. 가상 환경 설정
+**2. 가상 환경 설정**
 
 ```bash
 python -m venv myenv
 source myenv/bin/activate  # Windows: myenv\Scripts\activate
 ```
 
-3. 의존성 설치
+**3. 의존성 설치**
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. 환경 변수 설정 (.env 파일 생성)
+**4. 환경 변수 설정 (.env 파일 생성)**
 
-```bash
+```env
+SECRET_KEY=your-secret-key-here
+JWT_SECRET_KEY=your-jwt-secret-key-here
+JWT_ACCESS_TOKEN_EXPIRES=3600
+DEV_DATABASE_URL=mysql+pymysql://username:password@localhost:3306/database_name
 FLASK_DEBUG=1
-JWT_SECRET_KEY=your-secret-key
-DATABASE_URL=mysql://user:password@localhost/safety_db
-WEATHER_API_URL=https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst
-WEATHER_API_KEY=your-weather-api-key
-NX=60
-NY=127
+
+WHETHER_API_KEY=your-weather-api-key-here
+WHETHER_API_URL=http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst
+
+NX=51
+NY=69
 ```
 
-5. 데이터베이스 초기화
+**5. 데이터베이스 초기화**
 
 ```bash
-flask db init
-flask db migrate -m "Initial migration"
-flask db upgrade
+# MySQL 스키마 생성
+python database/create_schema.py
+
+# 초기 데이터 삽입
+python database/create_table.py
 ```
 
-6. 서버 실행
+**6. 서버 실행**
 
 ```bash
 python app.py
@@ -150,75 +167,83 @@ python app.py
 
 #### 인증
 
-* `POST /auth/login` - 관리자 로그인
-* `POST /auth/logout` - 관리자 로그아웃
-* `POST /auth/signup` - 직원 등록 (관리자만)
+- `POST /auth/login` - 웹 관리자 로그인
+- `POST /auth/logout` - 웹 관리자 로그아웃
 
-#### 대시보드
+#### 모니터링 대시보드
 
-* `GET /header` - 대시보드 헤더 정보
-* `GET /heat_incident` - 온열질환 사고 정보
-* `GET /heat_stats` - 온열질환 주간 통계
-* `GET /incident_total` - 사고 총 인원
-* `GET /device_status` - 디바이스 상태 현황
-* `GET /workers` - 작업자 목록 (페이징, 검색, 정렬)
+- `GET /monitoring/dashboard/stream` - 대시보드 실시간 스트림 (SSE)
 
-#### 생체정보
+#### 알림 관리
 
-* `GET /bio/profile` - 작업자 프로필 조회
-* `GET /bio/vital` - 작업자 생체정보 조회
+- `GET /alert/anomalies/stream` - 건강 이상징후 실시간 스트림 (SSE)
+- `GET /alert/anomalies/detail` - 건강 이상징후 상세 조회
+- `POST /alert/anomalies/update` - 건강 이상징후 상태 업데이트
+
+#### 위험 직원 관리
+
+- `GET /safety/danger-employees/stream` - 위험 직원 현황 스트림 (SSE)
+- `GET /safety/caution-employees/stream` - 주의 직원 현황 스트림 (SSE)
+
+#### 직원 관리
+
+- `GET /emp/list/stream` - 직원 목록 스트림 (SSE)
+- `GET /emp/<emp_id>/detail` - 특정 직원 상세 정보
+- `GET /emp/debug/attendance/<emp_id>` - 직원 출입 기록 디버그
 
 ### 모바일 앱 인터페이스 (`/api/mobile`)
 
-#### 인증 및 정보 관리
+#### 인증
 
-* `POST /login` - 모바일 로그인
-* `GET /mypage` - 마이페이지 조회
-* `PUT /mypage` - 마이페이지 수정
+- `POST /auth/login` - 모바일 근로자 로그인
+- `POST /auth/logout` - 모바일 근로자 로그아웃
 
-#### 기기 및 건강 데이터
+#### 프로필 관리
 
-* `POST /device-info` - 기기 정보 전송
-* `POST /health-data` - 헬스커넥트 생체정보 전송
-* `POST /nearby-alert` - 주변 근로자 알림
-* `GET /monitoring/today` - 오늘의 모니터링 데이터
+- `GET /profile/mypage` - 마이페이지 조회
+- `PUT /profile/mypage` - 마이페이지 수정
+- `POST /profile/mypage` - 마이페이지 업데이트
+
+#### 디바이스 데이터
+
+- `POST /device/measurement` - 센서 측정 데이터 전송
 
 ### 유틸리티 (`/api/util`)
 
-* `GET /weather` - 날씨 정보 조회
+- `GET /weather` - 날씨 정보 조회
+- `POST /change-password` - 비밀번호 변경
 
-### 디버그 (`/api/debug`)
+### 기타
 
-* `GET /test` - 서버 상태 테스트
-* `GET /jwt-test` - JWT 토큰 테스트
-* `GET /routes` - 등록된 라우트 목록
-* `GET /get-token` - 디버그용 토큰 발급
+- **디버그 엔드포인트**: `/api/debug/*` - 개발용 디버깅 도구들
+- **정적 파일**: `/static/*`, `/uploads/pictures/*` - 파일 서빙
+- **프론트엔드**: `/`, `/<path>` - Vue.js SPA 라우팅
 
 ## 주요 기능
 
 ### 1. 실시간 모니터링
 
-* 웨어러블 디바이스를 통한 생체정보 수집
-* 헬스커넥트 API 연동
-* 온열질환 및 낙상 위험도 실시간 계산
+- 웨어러블 디바이스를 통한 생체정보 수집
+- 헬스커넥트 API 연동
+- 온열질환 및 낙상 위험도 실시간 계산
 
 ### 2. 관리자 대시보드
 
-* 현장 작업자 현황 실시간 확인
-* 사고 발생 현황 및 통계
-* 디바이스 상태 모니터링
+- 현장 작업자 현황 실시간 확인
+- 사고 발생 현황 및 통계
+- 디바이스 상태 모니터링
 
 ### 3. 모바일 앱 연동
 
-* 작업자 개인정보 관리
-* 실시간 알림 시스템
-* 생체정보 전송 및 모니터링
+- 작업자 개인정보 관리
+- 실시간 알림 시스템
+- 생체정보 전송 및 모니터링
 
 ### 4. 보안
 
-* JWT 기반 인증 시스템
-* 토큰 블랙리스트 관리
-* 관리자-사용자 권한 분리
+- JWT 기반 인증 시스템
+- 토큰 블랙리스트 관리
+- 관리자-사용자 권한 분리
 
 ## 개발 환경
 
@@ -246,13 +271,8 @@ curl http://localhost:5000/api/debug/routes
 
 ## 라이센스
 
-이 프로젝트는 [라이센스명] 하에 배포됩니다.
+이 프로젝트는 MIT License 하에 배포됩니다.
 
----
+## 프로젝트 정보
 
-## 문의
-
-프로젝트 관련 문의사항이 있으시면 이슈를 등록하거나 아래 연락처로 문의해주세요.
-
-* 개발팀: [이메일 주소]
-* 프로젝트 이슈: [GitHub 이슈 링크]
+이 프로젝트는 캡스톤 디자인 프로젝트로 개발되었습니다.

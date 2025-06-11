@@ -6,7 +6,8 @@ import json
 
 from app import create_app, db
 from app.model import HealthAnomaly, Employee, Device, DeviceMeasurement, DeviceManagement
-from app.util.auth_utils import verify_token_from_query
+
+from app.util.auth import verify_token_from_query
 
 monitoring_bp = Blueprint('monitoring', __name__)
 

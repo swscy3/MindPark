@@ -8,7 +8,7 @@ import json
 # Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
 from app import create_app, db
 from app.model import HealthAnomaly
-from app.util.auth_utils import verify_token_from_query
+from app.util.auth import verify_token_from_query
 
 alert_bp = Blueprint('alert_bp', __name__)
 

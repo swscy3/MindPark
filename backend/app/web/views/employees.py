@@ -11,7 +11,8 @@ from app.model import (
     Employee, EmergencyContact, DeviceMeasurement, 
     Device, DeviceManagement, Admin
 )
-from app.util.auth_utils import verify_token_from_query
+
+from app.util.auth import verify_token_from_query
 
 employees_bp = Blueprint('employees', __name__)
 

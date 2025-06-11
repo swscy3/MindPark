@@ -11,7 +11,8 @@ from app.model import (
     HealthAnomaly, Employee, EmergencyContact, 
     DeviceMeasurement, Device
 )
-from app.util.auth_utils import verify_token_from_query
+
+from app.util.auth import verify_token_from_query
 
 safety_bp = Blueprint('safety', __name__)
 
