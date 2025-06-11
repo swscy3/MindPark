@@ -242,49 +242,57 @@ def update_health_anomaly():
         if action_content is not None:
             anomaly.action_content = action_content
         
-        # 업데이트 시간은 onupdate=datetime.utcnow에 의해 자동으로 업데이트됨
+        # 🔧 수정된 부분: 명시적으로 updated_at을 UTC 시간으로 설정
+        anomaly.updated_at = datetime.utcnow()
+        
         # 변경 사항 저장
         db.session.commit()
+        
+        # 🔧 수정된 부분: 업데이트 후 해당 anomaly만 다시 조회하여 최신 데이터 확보
+        updated_anomaly = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).filter_by(anomaly_id=anomaly_id).first()
         
         # 업데이트 후 전체 anomaly 목록 조회 (프론트엔드 실시간 반영용)
         all_anomalies = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).all()
         
         # 전체 목록 포맷팅
         formatted_anomalies = []
-        for anomaly in all_anomalies:
-            employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
+        for anomaly_item in all_anomalies:
+            employee_name = anomaly_item.employee.name if anomaly_item.employee else '알 수 없음'
             
             formatted_item = {
-                'anomaly_id': anomaly.anomaly_id,
-                'emp_id': anomaly.emp_id,
+                'anomaly_id': anomaly_item.anomaly_id,
+                'emp_id': anomaly_item.emp_id,
                 'emp_name': employee_name,
-                'symptom': anomaly.symptom,
+                'symptom': anomaly_item.symptom,
                 'location': {
-                    'x': anomaly.loc_x,
-                    'y': anomaly.loc_y
+                    'x': anomaly_item.loc_x,
+                    'y': anomaly_item.loc_y
                 },
-                'anomaly_time': to_korea_time(anomaly.anomaly_time),
-                'status': anomaly.status,
+                'anomaly_time': to_korea_time(anomaly_item.anomaly_time),
+                'status': anomaly_item.status,
                 'management': {
-                    'risk': anomaly.risk,
-                    'action_content': anomaly.action_content,
-                    'updated_at': to_korea_time(anomaly.updated_at)
+                    'risk': anomaly_item.risk,
+                    'action_content': anomaly_item.action_content,
+                    'updated_at': to_korea_time(anomaly_item.updated_at)
                 }
             }
             formatted_anomalies.append(formatted_item)
         
+        # 🔧 수정된 부분: 일관된 시간 형식 사용
+        current_korea_time = get_korea_now_iso()  # ISO 형식으로 통일
+        
         # 수정된 특정 데이터와 전체 목록 함께 응답
         response_data = {
             'updated_item': {
-                'anomaly_id': anomaly.anomaly_id,
-                'status': anomaly.status,
-                'action_content': anomaly.action_content,
-                'updated_at': to_korea_time(anomaly.updated_at),
+                'anomaly_id': updated_anomaly.anomaly_id,
+                'status': updated_anomaly.status,
+                'action_content': updated_anomaly.action_content,
+                'updated_at': to_korea_time(updated_anomaly.updated_at),  # 🔧 다시 조회한 데이터 사용
                 'updated_by': current_user
             },
             'all_anomalies': formatted_anomalies,  # 전체 목록 추가
             'record_count': len(formatted_anomalies),
-            'timestamp': get_korea_now()
+            'timestamp': current_korea_time  # 🔧 ISO 형식으로 통일
         }
         
         return jsonify({

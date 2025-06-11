@@ -91,7 +91,8 @@ class DeviceService:
             dummy_rows = []
             labels_normal = ['sit', 'step', 'walk']
 
-            fall_emp_ids = emp_ids[:2]
+            random.shuffle(emp_ids)
+            fall_emp_ids = random.sample(emp_ids, 2)
             for i, fall_label in enumerate(['fall', 'light']):
                 row = base_row.copy()
                 row['emp_id'] = fall_emp_ids[i]
