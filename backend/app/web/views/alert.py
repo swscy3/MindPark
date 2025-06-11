@@ -246,13 +246,45 @@ def update_health_anomaly():
         # 변경 사항 저장
         db.session.commit()
         
-        # 수정된 데이터 응답
+        # 업데이트 후 전체 anomaly 목록 조회 (프론트엔드 실시간 반영용)
+        all_anomalies = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).all()
+        
+        # 전체 목록 포맷팅
+        formatted_anomalies = []
+        for anomaly in all_anomalies:
+            employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
+            
+            formatted_item = {
+                'anomaly_id': anomaly.anomaly_id,
+                'emp_id': anomaly.emp_id,
+                'emp_name': employee_name,
+                'symptom': anomaly.symptom,
+                'location': {
+                    'x': anomaly.loc_x,
+                    'y': anomaly.loc_y
+                },
+                'anomaly_time': to_korea_time(anomaly.anomaly_time),
+                'status': anomaly.status,
+                'management': {
+                    'risk': anomaly.risk,
+                    'action_content': anomaly.action_content,
+                    'updated_at': to_korea_time(anomaly.updated_at)
+                }
+            }
+            formatted_anomalies.append(formatted_item)
+        
+        # 수정된 특정 데이터와 전체 목록 함께 응답
         response_data = {
-            'anomaly_id': anomaly.anomaly_id,
-            'status': anomaly.status,
-            'action_content': anomaly.action_content,
-            'updated_at': to_korea_time(anomaly.updated_at),  # 한국시간 변환
-            'updated_by': current_user
+            'updated_item': {
+                'anomaly_id': anomaly.anomaly_id,
+                'status': anomaly.status,
+                'action_content': anomaly.action_content,
+                'updated_at': to_korea_time(anomaly.updated_at),
+                'updated_by': current_user
+            },
+            'all_anomalies': formatted_anomalies,  # 전체 목록 추가
+            'record_count': len(formatted_anomalies),
+            'timestamp': get_korea_now()
         }
         
         return jsonify({
