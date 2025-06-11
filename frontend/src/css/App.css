@@ -84,3 +84,13 @@ html, body {
   overflow-y: auto;
   flex: 1;
 }
+
+
+.main-content .v-container {
+  margin-left: 120px;
+  width: calc(100% - 120px);
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  flex: 1;
+}

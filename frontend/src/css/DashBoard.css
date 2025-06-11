@@ -1,4 +1,4 @@
-/* DashBoard.css - 원래 버전 */
+/* DashBoard.css - 차트 섹션 추가 버전 */
 
 .dashboard {
   padding: 20px;
@@ -15,8 +15,7 @@
   grid-template-columns: 1fr 1fr; /* 좌우 1:1 비율 */
   gap: 20px;
   min-height: 500px;
-  align-items: start; /* 자연스러운 높이 시작 */
-  grid-auto-rows: minmax(500px, auto); /* 최소 500px, 내용에 따라 자동 확장 */
+  align-items: stretch; /* 두 컬럼의 높이를 동일하게 맞춤 */
 }
 
 /* 왼쪽 테이블 섹션 */
@@ -24,7 +23,35 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-height: 500px; /* 최소 높이만 설정 */
+  height: 100%; /* 부모 높이에 맞춤 */
+}
+
+/* 차트 섹션 - 바이오메트릭과 위클리 차트 나란히 배치 */
+.charts-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+.chart-left,
+.chart-right {
+  height: 500px;
+  min-height: 500px;
+  background: transparent;
+}
+
+/* 차트 컨테이너들이 동일한 높이를 갖도록 */
+.chart-left > *,
+.chart-right > * {
+  height: 100%;
+}
+
+/* 디바이스 섹션 */
+.device-section {
+  width: 100%;
+  margin-top: 10px;
 }
 
 /* 생체데이터 위험도 차트 섹션 */
@@ -63,21 +90,26 @@
     gap: 15px;
   }
   
+  .charts-section {
+    gap: 16px;
+    margin: 15px 0;
+  }
+  
+  .chart-left,
+  .chart-right {
+    height: 300px;
+    min-height: 300px;
+  }
+  
   .risk-chart-section {
     max-width: 100%;
     min-height: 350px;
     margin-bottom: 15px;
   }
   
-  .charts-section {
+  .bottom-row {
     grid-template-columns: 1fr;
     gap: 15px;
-    margin-bottom: 15px;
-  }
-  
-  .chart-left,
-  .chart-right {
-    min-height: 300px;
   }
 }
 
@@ -95,6 +127,18 @@
   
   .tables-container {
     gap: 15px;
+  }
+  
+  .charts-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  
+  .chart-left,
+  .chart-right {
+    height: 300px;
+    min-height: 300px;
   }
   
   .risk-chart-section {
@@ -118,6 +162,17 @@
   
   .main-dashboard-layout {
     min-height: 350px;
+  }
+  
+  .charts-section {
+    gap: 12px;
+    margin: 12px 0;
+  }
+  
+  .chart-left,
+  .chart-right {
+    height: 240px;
+    min-height: 240px;
   }
   
   .risk-chart-section {

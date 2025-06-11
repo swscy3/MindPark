@@ -1,15 +1,14 @@
 # app/web/alert.py
 from flask import Blueprint, Response, current_app, jsonify, request
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from datetime import datetime
 import time
 import json
 
 # Flask 앱 인스턴스와 DB 세션을 명시적으로 가져오기
-from app import create_app, db
-from app.model import HealthAnomaly
+from app import create_app
 from app.util.auth import verify_token_from_query
-from app.util.time_utils import to_korea_time, get_korea_now  # 🔧 공용 유틸리티 사용
+from app.util.time_utils import get_korea_now
+from app.web.service import AlertService  # 🔧 AlertService import
 
 alert_bp = Blueprint('alert_bp', __name__)
 
@@ -36,33 +35,8 @@ def health_anomaly_stream():
             # 각 반복마다 새로운 앱 컨텍스트 생성
             with app.app_context():
                 try:
-                    # HealthAnomaly 테이블의 모든 데이터 조회
-                    all_anomalies = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).all()
-                    
-                    # 데이터 변환
-                    formatted_data = []
-                    for anomaly in all_anomalies:
-                        employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
-                        
-                        formatted_item = {
-                            'anomaly_id': anomaly.anomaly_id,
-                            'emp_id': anomaly.emp_id,
-                            'emp_name': employee_name,
-                            'symptom': anomaly.symptom,
-                            'location': {
-                                'x': anomaly.loc_x,
-                                'y': anomaly.loc_y
-                            },
-                            'anomaly_time': to_korea_time(anomaly.anomaly_time),  # 한국시간 변환
-                            'status': anomaly.status,
-                            'management': {
-                                'risk': anomaly.risk,
-                                'action_content': anomaly.action_content,
-                                'updated_at': to_korea_time(anomaly.updated_at)  # 한국시간 변환
-                            }
-                        }
-                        
-                        formatted_data.append(formatted_item)
+                    # 🔧 서비스 계층 사용
+                    formatted_data = AlertService.get_all_anomalies()
                     
                     # 응답 데이터 생성
                     current_time = get_korea_now()  # 한국 현재시간
@@ -77,8 +51,6 @@ def health_anomaly_stream():
                     yield f"data: {json.dumps(response_data, ensure_ascii=False)}\n\n"
                 
                 except Exception as e:
-                    # 터미널에 에러 출력
-                    print(f"[ERROR] SSE 데이터 조회 오류: {str(e)}")
                     
                     # 클라이언트에는 간단한 에러만 전송
                     error_info = {
@@ -131,30 +103,14 @@ def get_health_anomaly():
                 'message': 'anomaly_id가 제공되지 않았습니다. 쿼리 파라미터 또는 JSON 본문으로 제공해주세요.'
             }), 400
             
-        # 데이터베이스에서 특정 ID의 건강 이상 데이터 조회
-        anomaly = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).filter_by(anomaly_id=anomaly_id).first()
+        # 🔧 서비스 계층 사용
+        response_data = AlertService.get_anomaly_by_id(anomaly_id)
         
-        if not anomaly:
+        if not response_data:
             return jsonify({
                 'status': 'error',
                 'message': f'ID가 {anomaly_id}인 건강 이상 데이터를 찾을 수 없습니다.'
             }), 404
-        
-        # employee 관계를 통해 직원 이름 가져오기
-        employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
-        
-        # 요청된 필드만 포함하여 응답 생성
-        response_data = {
-            'anomaly_id': anomaly.anomaly_id,
-            'emp_id': anomaly.emp_id,                  # 사번
-            'emp_name': employee_name,                 # 이름
-            'symptom': anomaly.symptom,                # 증상
-            'anomaly_time': to_korea_time(anomaly.anomaly_time),  # 한국시간 변환
-            'status': anomaly.status,                  # 상태
-            'action_content': anomaly.action_content,  # 조치내용
-            'risk': anomaly.risk,                      # 추가 정보
-            'updated_at': to_korea_time(anomaly.updated_at)  # 한국시간 변환
-        }
         
         return jsonify({
             'status': 'success',
@@ -163,15 +119,11 @@ def get_health_anomaly():
         }), 200
         
     except Exception as e:
-        # 터미널에 에러 출력
-        print(f"[ERROR] 건강 이상 데이터 조회 오류 (anomaly_id: {anomaly_id if 'anomaly_id' in locals() else 'unknown'}): {str(e)}")
-        
         return jsonify({
             'status': 'error',
             'message': '데이터 조회 중 오류가 발생했습니다.'
         }), 500
 
-# 건강 이상 감지 데이터 상태 및 조치내용 수정 API
 @alert_bp.route('/anomalies/update', methods=['POST'])
 @jwt_required()  # 표준 JWT 헤더 인증
 def update_health_anomaly():
@@ -217,97 +169,39 @@ def update_health_anomaly():
                 'status': 'error',
                 'message': '수정할 필드(status, action_content)가 제공되지 않았습니다.'
             }), 400
-            
-        # 유효한 상태 값 확인 (status가 제공된 경우)
-        if status is not None:
-            valid_statuses = ['처리중', '완료']
-            if status not in valid_statuses:
-                return jsonify({
-                    'status': 'error',
-                    'message': f'유효하지 않은 상태입니다. 유효한 값: {", ".join(valid_statuses)}'
-                }), 400
         
-        # 데이터베이스에서 항목 조회
-        anomaly = HealthAnomaly.query.filter_by(anomaly_id=anomaly_id).first()
+        # 🔧 서비스 계층 사용
+        result = AlertService.update_anomaly(
+            anomaly_id=anomaly_id,
+            status=status,
+            action_content=action_content,
+            current_user=current_user
+        )
         
-        if not anomaly:
+        if not result:
             return jsonify({
                 'status': 'error',
                 'message': f'ID가 {anomaly_id}인 건강 이상 데이터를 찾을 수 없습니다.'
             }), 404
         
-        # 데이터 업데이트
-        if status is not None:
-            anomaly.status = status
-        if action_content is not None:
-            anomaly.action_content = action_content
-        
-        # 🔧 수정된 부분: 명시적으로 updated_at을 UTC 시간으로 설정
-        anomaly.updated_at = datetime.utcnow()
-        
-        # 변경 사항 저장
-        db.session.commit()
-        
-        # 🔧 수정된 부분: 업데이트 후 해당 anomaly만 다시 조회하여 최신 데이터 확보
-        updated_anomaly = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).filter_by(anomaly_id=anomaly_id).first()
-        
-        # 업데이트 후 전체 anomaly 목록 조회 (프론트엔드 실시간 반영용)
-        all_anomalies = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).all()
-        
-        # 전체 목록 포맷팅
-        formatted_anomalies = []
-        for anomaly_item in all_anomalies:
-            employee_name = anomaly_item.employee.name if anomaly_item.employee else '알 수 없음'
-            
-            formatted_item = {
-                'anomaly_id': anomaly_item.anomaly_id,
-                'emp_id': anomaly_item.emp_id,
-                'emp_name': employee_name,
-                'symptom': anomaly_item.symptom,
-                'location': {
-                    'x': anomaly_item.loc_x,
-                    'y': anomaly_item.loc_y
-                },
-                'anomaly_time': to_korea_time(anomaly_item.anomaly_time),
-                'status': anomaly_item.status,
-                'management': {
-                    'risk': anomaly_item.risk,
-                    'action_content': anomaly_item.action_content,
-                    'updated_at': to_korea_time(anomaly_item.updated_at)
-                }
-            }
-            formatted_anomalies.append(formatted_item)
-        
-        # 🔧 수정된 부분: 일관된 시간 형식 사용
-        current_korea_time = get_korea_now_iso()  # ISO 형식으로 통일
-        
-        # 수정된 특정 데이터와 전체 목록 함께 응답
-        response_data = {
-            'updated_item': {
-                'anomaly_id': updated_anomaly.anomaly_id,
-                'status': updated_anomaly.status,
-                'action_content': updated_anomaly.action_content,
-                'updated_at': to_korea_time(updated_anomaly.updated_at),  # 🔧 다시 조회한 데이터 사용
-                'updated_by': current_user
-            },
-            'all_anomalies': formatted_anomalies,  # 전체 목록 추가
-            'record_count': len(formatted_anomalies),
-            'timestamp': current_korea_time  # 🔧 ISO 형식으로 통일
-        }
+        # 현재 시간 추가
+        result['timestamp'] = get_korea_now()
+        result['record_count'] = len(result['all_anomalies'])
         
         return jsonify({
             'status': 'success',
             'message': '건강 이상 감지 데이터 수정 성공',
-            'data': response_data
+            'data': result
         }), 200
         
+    except ValueError as ve:
+        # 유효성 검사 오류 (예: 잘못된 status 값)
+        return jsonify({
+            'status': 'error',
+            'message': str(ve)
+        }), 400
+        
     except Exception as e:
-        # 오류 발생 시 트랜잭션 롤백
-        db.session.rollback()
-        
-        # 터미널에 에러 출력
-        print(f"[ERROR] 건강 이상 데이터 수정 오류 (anomaly_id: {data.get('anomaly_id') if 'data' in locals() and data else 'unknown'}): {str(e)}")
-        
         return jsonify({
             'status': 'error',
             'message': '데이터 수정 중 오류가 발생했습니다.'

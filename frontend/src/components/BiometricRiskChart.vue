@@ -2,10 +2,10 @@
   <div class="biometric-risk-chart">
     <h3>{{ title }}</h3>
     <div class="chart-container">
-      <canvas ref="chartCanvas"></canvas>
+      <canvas ref="chartCanvas" :key="chartKey"></canvas>
       <div class="center-text">
         <div class="total-count">{{ totalWorkers }}</div>
-        <div class="total-label">총 작업자</div>
+        <div class="total-label">출근자 수</div>
       </div>
     </div>
     <div class="chart-legend">
@@ -19,7 +19,8 @@
 </template>
 
 <script>
-import Chart from 'chart.js/auto';
+import { employeeData } from '../utils/eventBus.js'
+import { watch } from 'vue'
 
 export default {
   name: 'BiometricRiskChart',
@@ -27,10 +28,6 @@ export default {
     title: {
       type: String,
       default: '현재 작업자 위험도 분포'
-    },
-    totalWorkers: {
-      type: Number,
-      default: 80
     },
     riskWorkersData: {
       type: Object,
@@ -42,19 +39,31 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      attendedWorkers: [],
+      chartKey: 0 // 강제 리렌더링용
     };
   },
   computed: {
-    // 실제 위험도별 인원 계산 (SSE 데이터 기반)
+    totalWorkers() {
+      return this.attendedWorkers.length;
+    },
     riskCounts() {
       const allRiskWorkers = [
         ...(this.riskWorkersData.heatRiskWorkers || []),
         ...(this.riskWorkersData.fallRiskWorkers || [])
       ];
       
-      const dangerCount = allRiskWorkers.filter(worker => worker.risk_level === "위험").length;
-      const cautionCount = allRiskWorkers.filter(worker => worker.risk_level === "주의").length;
+      const attendedEmpIds = this.attendedWorkers.map(worker => worker.emp_id);
+      
+      const dangerCount = allRiskWorkers.filter(worker => 
+        worker.risk_level === "위험" && attendedEmpIds.includes(worker.emp_id)
+      ).length;
+      
+      const cautionCount = allRiskWorkers.filter(worker => 
+        worker.risk_level === "주의" && attendedEmpIds.includes(worker.emp_id)
+      ).length;
+      
       const normalCount = this.totalWorkers - (dangerCount + cautionCount);
       
       return {
@@ -63,9 +72,8 @@ export default {
         danger: dangerCount
       };
     },
-    // 범례 아이템들
     legendItems() {
-      const total = this.totalWorkers || 1; // 0으로 나누기 방지
+      const total = this.totalWorkers || 1;
       
       return [
         {
@@ -87,84 +95,24 @@ export default {
           class: 'danger'
         }
       ];
-    },
-    // Chart.js 데이터
-    chartData() {
-      return {
-        labels: ['정상', '주의', '위험'],
-        datasets: [{
-          data: [this.riskCounts.normal, this.riskCounts.caution, this.riskCounts.danger],
-          backgroundColor: [
-            'rgba(76, 175, 80, 0.8)',   // 정상 - 반투명 초록
-            'rgba(255, 152, 0, 0.8)',   // 주의 - 반투명 주황
-            'rgba(244, 67, 54, 0.8)'    // 위험 - 반투명 빨강
-          ],
-          borderColor: [
-            '#4CAF50',  // 정상 - 진한 초록
-            '#FF9800',  // 주의 - 진한 주황
-            '#F44336'   // 위험 - 진한 빨강
-          ],
-          borderWidth: 3,
-          hoverOffset: 15,
-          hoverBorderWidth: 4
-        }]
-      };
-    },
-    // Chart.js 옵션
-    chartOptions() {
-      return {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: {
-            display: false
-          },
-          tooltip: {
-            backgroundColor: 'rgba(0, 0, 0, 0.9)',
-            titleColor: '#ffffff',
-            bodyColor: '#ffffff',
-            borderColor: '#ffffff',
-            borderWidth: 1,
-            cornerRadius: 8,
-            titleFont: {
-              family: "'Noto Sans KR', sans-serif",
-              size: 14,
-              weight: 'bold'
-            },
-            bodyFont: {
-              family: "'Noto Sans KR', sans-serif",
-              size: 13
-            },
-            padding: 12,
-            callbacks: {
-              label: (context) => {
-                const value = context.parsed;
-                const percentage = this.totalWorkers > 0 
-                  ? ((value / this.totalWorkers) * 100).toFixed(1)
-                  : 0;
-                return `${context.label}: ${value}명 (${percentage}%)`;
-              }
-            }
-          }
-        },
-        cutout: '65%',
-        radius: '90%',
-        animation: {
-          animateRotate: true,
-          animateScale: true,
-          duration: 1500,
-          easing: 'easeOutQuart'
-        },
-        interaction: {
-          intersect: false
-        }
-      };
     }
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.initChart();
-    });
+  async mounted() {
+    console.log('BiometricRiskChart 마운트됨')
+    
+    this.updateAttendedWorkers()
+    
+    // 출근자 데이터 변경 감지
+    watch(employeeData, () => {
+      console.log('출근자 데이터 변경 감지')
+      this.updateAttendedWorkers()
+      this.recreateChart()
+    }, { deep: true })
+    
+    // 동적 임포트로 Chart.js 로드
+    await this.loadChartJS()
+    await this.$nextTick()
+    this.initChart()
   },
   beforeUnmount() {
     this.destroyChart();
@@ -172,46 +120,100 @@ export default {
   watch: {
     riskWorkersData: {
       handler() {
-        this.updateChart();
-      },
-      deep: true
-    },
-    riskCounts: {
-      handler() {
-        this.updateChart();
+        this.recreateChart()
       },
       deep: true
     }
   },
   methods: {
-    // 차트 초기화
-    initChart() {
-      if (!this.$refs.chartCanvas) return;
-      
-      const ctx = this.$refs.chartCanvas.getContext('2d');
-      
-      this.chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: this.chartData,
-        options: this.chartOptions
-      });
-      
-      console.log('차트 초기화');
-    },
-    
-    // 차트 업데이트
-    updateChart() {
-      if (this.chart) {
-        this.chart.data = this.chartData;
-        this.chart.update('none'); // 애니메이션 없이 업데이트
+    // Chart.js 동적 로드
+    async loadChartJS() {
+      try {
+        const Chart = await import('chart.js/auto')
+        this.Chart = Chart.default
+        console.log('Chart.js 로드 완료')
+      } catch (error) {
+        console.error('Chart.js 로드 실패:', error)
       }
     },
     
-    // 차트 제거
+    updateAttendedWorkers() {
+      const employees = employeeData.value || []
+      this.attendedWorkers = employees.filter(emp => emp.attendance_status === '출근중')
+      console.log('출근자 업데이트:', this.attendedWorkers.length)
+    },
+    
+    initChart() {
+      if (!this.Chart || !this.$refs.chartCanvas) {
+        console.error('Chart.js 또는 캔버스가 준비되지 않음')
+        return;
+      }
+      
+      try {
+        const ctx = this.$refs.chartCanvas.getContext('2d');
+        
+        // 완전히 독립적인 설정
+        this.chart = new this.Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: ['정상', '주의', '위험'],
+            datasets: [{
+              data: [this.riskCounts.normal, this.riskCounts.caution, this.riskCounts.danger],
+              backgroundColor: [
+                'rgba(76, 175, 80, 0.8)',
+                'rgba(255, 152, 0, 0.8)',
+                'rgba(244, 67, 54, 0.8)'
+              ],
+              borderColor: [
+                '#4CAF50',
+                '#FF9800',
+                '#F44336'
+              ],
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: false, // 완전히 끄기
+            maintainAspectRatio: true,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (context) => {
+                    const value = context.parsed;
+                    const percentage = this.totalWorkers > 0 
+                      ? ((value / this.totalWorkers) * 100).toFixed(1)
+                      : 0;
+                    return `${context.label}: ${value}명 (${percentage}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+        
+        console.log('차트 초기화 완료');
+      } catch (error) {
+        console.error('차트 초기화 중 오류:', error);
+      }
+    },
+    
+    recreateChart() {
+      this.destroyChart();
+      this.chartKey++; // 강제 리렌더링
+      this.$nextTick(() => {
+        this.initChart();
+      });
+    },
+    
     destroyChart() {
       if (this.chart) {
-        this.chart.destroy();
-        this.chart = null;
+        try {
+          this.chart.destroy();
+          this.chart = null;
+        } catch (error) {
+          console.error('차트 제거 중 오류:', error);
+        }
       }
     }
   }

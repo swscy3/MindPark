@@ -120,7 +120,7 @@ const fetchWorkers = () => {
   }
   
   // 토큰을 쿼리 파라미터로 추가
-  const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0OTMxNDg1MiwianRpIjoiOGU4MWUxNWItOTIwOS00MzI1LThmNjAtNjg4N2JhYzA4ZDVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlRFU1RfVVNFUiIsIm5iZiI6MTc0OTMxNDg1MiwiZXhwIjoxNzQ5Njc0ODUyfQ._dvzgnDE-_roLAlHIp2W9FjeplylHy2wlv8KTqjQt-Y';
+  const token = localStorage.getItem('token');
   const url = `http://orion.mokpo.ac.kr:8485/api/web/emp/list/stream?token=${token}`;
   
   try {
@@ -134,36 +134,42 @@ const fetchWorkers = () => {
     
     // 메시지 수신
     eventSource.onmessage = (event) => {
-      try {
-        console.log('SSE 원본 데이터:', event.data);
-        const responseData = JSON.parse(event.data);
-        
-        console.log('SSE 파싱된 데이터:', responseData);
-        console.log('직원 데이터:', responseData.data?.employees);
-        
-        if (responseData.status === 'success' && responseData.data?.employees) {
-          // 새로운 API 구조에 맞게 데이터 변환
-          workers.value = responseData.data.employees.map((employee, index) => ({
-            id: index + 1,
-            name: employee.name,
-            code: employee.emp_id,
-            department: employee.department,
-            position: employee.position,
-            status: employee.attendance_status === '미출근' ? '미출근' : '출근',
-            // 원본 API 데이터 보존
-            originalData: employee
-          }));
-          
-          console.log('변환된 작업자 데이터:', workers.value);
-          loading.value = false;
-        } else {
-          console.log('SSE 응답 구조가 예상과 다름:', responseData);
-        }
-      } catch (parseError) {
-        console.error('SSE 데이터 파싱 오류:', parseError);
-        console.log('파싱 실패한 원본 데이터:', event.data);
-      }
-    };
+ try {
+   console.log('SSE 원본 데이터:', event.data);
+   const responseData = JSON.parse(event.data);
+   
+   console.log('SSE 파싱된 데이터:', responseData);
+   console.log('직원 데이터:', responseData.data?.employees);
+   
+   if (responseData.status === 'success' && responseData.data?.employees) {
+     // 새로운 API 구조에 맞게 데이터 변환
+     workers.value = responseData.data.employees.map((employee, index) => ({
+       id: index + 1,
+       name: employee.name,
+       code: employee.emp_id,
+       department: employee.department,
+       position: employee.position,
+       status: employee.attendance_status === '미출근' ? '미출근' : '출근',
+       // 원본 API 데이터 보존
+       originalData: employee
+     }));
+     
+     // 이벤트 버스로 원본 데이터 공유 추가
+     import('../utils/eventBus.js').then(({ updateEmployeeData }) => {
+       updateEmployeeData(responseData.data.employees);
+       console.log('직원 데이터 이벤트 버스로 전송 완료');
+     });
+     
+     console.log('변환된 작업자 데이터:', workers.value);
+     loading.value = false;
+   } else {
+     console.log('SSE 응답 구조가 예상과 다름:', responseData);
+   }
+ } catch (parseError) {
+   console.error('SSE 데이터 파싱 오류:', parseError);
+   console.log('파싱 실패한 원본 데이터:', event.data);
+ }
+};
     
     // 에러 처리
     eventSource.onerror = (error) => {
@@ -226,7 +232,7 @@ const openModal = async (worker) => {
   
   try {
     // 상세 정보 API 호출
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0OTMxNDg1MiwianRpIjoiOGU4MWUxNWItOTIwOS00MzI1LThmNjAtNjg4N2JhYzA4ZDVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlRFU1RfVVNFUiIsIm5iZiI6MTc0OTMxNDg1MiwiZXhwIjoxNzQ5Njc0ODUyfQ._dvzgnDE-_roLAlHIp2W9FjeplylHy2wlv8KTqjQt-Y';
+   const token = localStorage.getItem('token');
     const detailUrl = `http://orion.mokpo.ac.kr:8485/api/web/emp/${worker.code}/detail?token=${token}`;
     
     console.log('호출할 API URL:', detailUrl);
@@ -422,6 +428,15 @@ const totalPages = computed(() => {
 const paginatedWorkers = computed(() => {
   // 검색 필터링 및 정렬 로직
   const sorted = [...filteredWorkers.value].sort((a, b) => {
+    // 1차 정렬: 출근 상태 (출근이 맨위, 미출근이 맨아래)
+    const statusOrder = { '출근': 0, '미출근': 1, '위험': 2 };
+    const statusDiff = statusOrder[a.status] - statusOrder[b.status];
+    
+    if (statusDiff !== 0) {
+      return statusDiff;
+    }
+    
+    // 2차 정렬: 기존 정렬 조건 (이름, 사번 등)
     const aValue = a[sortColumn.value];
     const bValue = b[sortColumn.value];
     

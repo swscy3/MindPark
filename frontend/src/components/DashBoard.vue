@@ -34,7 +34,7 @@
       <div class="chart-left">
         <BiometricRiskChart 
           title="현재 작업자 위험도 분포"
-          :total-workers="80"
+          :risk-workers-data="{ heatRiskWorkers, fallRiskWorkers }"
           :refresh-interval="10000"
         />
       </div>

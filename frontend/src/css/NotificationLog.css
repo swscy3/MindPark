@@ -21,6 +21,45 @@
   border-bottom: 1px solid #e0e0e0;
 }
 
+.notification-log-title.completed {
+  color: #2e7d32; /* 초록색 계열 */
+}
+
+/* 완료 상태 관련 스타일 */
+.status-completed {
+  color: #1976d2 !important;
+  background-color: #e3f2fd !important;
+  border: 1px solid #1976d2 !important;
+  font-weight: 600;
+}
+
+.status-badge.completed {
+  background-color: #1976d2 !important;
+  color: white !important;
+}
+
+.notification-row.completed {
+  background-color: #f8f9fa;
+  border-left: 4px solid #1976d2;
+}
+
+.notification-row.completed .status-text {
+  color: #1976d2;
+  font-weight: 600;
+}
+
+/* 처리중 상태 스타일 (기존 유지) */
+.status-processing {
+  color: #f57c00;
+  background-color: #fff3e0;
+  border: 1px solid #f57c00;
+}
+
+.status-badge.processing {
+  background-color: #f57c00;
+  color: white;
+}
+
 /* 반응형 레이아웃 */
 @media (max-width: 960px) {
   .notification-log-container {

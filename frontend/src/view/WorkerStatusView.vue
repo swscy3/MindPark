@@ -184,7 +184,7 @@ export default {
       }
       
       try {
-        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6ZmFsc2UsImlhdCI6MTc0OTMxNDg1MiwianRpIjoiOGU4MWUxNWItOTIwOS00MzI1LThmNjAtNjg4N2JhYzA4ZDVhIiwidHlwZSI6ImFjY2VzcyIsInN1YiI6IlRFU1RfVVNFUiIsIm5iZiI6MTc0OTMxNDg1MiwiZXhwIjoxNzQ5Njc0ODUyfQ._dvzgnDE-_roLAlHIp2W9FjeplylHy2wlv8KTqjQt-Y';
+        const token = localStorage.getItem('token');
         
         // activeTab에 따라 다른 엔드포인트 사용
         let endpoint = '';

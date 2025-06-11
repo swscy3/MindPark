@@ -12,10 +12,18 @@
 
 .edit-modal-content {
   padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
 }
 
 .edit-modal-actions {
   padding: 16px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .edit-history {
@@ -46,4 +54,22 @@
 
 .v-text-field--readonly .v-field__outline {
   border-color: #ddd;
+}
+
+/* 위험도 선택 필드 강조 */
+.v-select .v-field--focused .v-field__outline {
+  border-color: #1565c0;
+}
+
+/* 모달 반응형 처리 */
+@media (max-width: 600px) {
+  .edit-modal-content {
+    padding: 16px;
+    max-height: 60vh;
+  }
+  
+  .edit-modal-title {
+    font-size: 1.1rem;
+    padding: 12px;
+  }
 }

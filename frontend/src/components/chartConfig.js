@@ -7,7 +7,7 @@ export const blueColors = {
   dark: '#0D47A1'
 };
 
-// 기본 차트 옵션
+// 기본 차트 옵션 (bar, line 차트용)
 export const defaultChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -43,6 +43,25 @@ export const defaultChartOptions = {
           family: "'Noto Sans KR', sans-serif"
         }
       }
+    },
+    tooltip: {
+      titleFont: {
+        family: "'Noto Sans KR', sans-serif"
+      },
+      bodyFont: {
+        family: "'Noto Sans KR', sans-serif"
+      }
+    }
+  }
+};
+
+// doughnut 차트 전용 옵션 추가
+export const doughnutChartOptions = {
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
     },
     tooltip: {
       titleFont: {

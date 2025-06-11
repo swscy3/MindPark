@@ -48,6 +48,24 @@
             class="mb-4"
           ></v-text-field>
           
+          <v-text-field
+            v-model="editedNotification.risk"
+            label="위험도"
+            outlined
+            dense
+            readonly
+            class="mb-4"
+          ></v-text-field>
+          
+          <v-select
+            v-model="editedNotification.editStatus"
+            :items="editStatusOptions"
+            label="처리상태"
+            outlined
+            dense
+            class="mb-4"
+          ></v-select>
+          
           <v-textarea
             v-model="editedNotification.treatment"
             label="처치내용"
@@ -55,15 +73,6 @@
             placeholder="응급상황에 대한 처치 내용을 입력하세요"
             class="mb-4"
           ></v-textarea>
-          
-          <v-select
-            v-model="editedNotification.editStatus"
-            :items="editStatusOptions"
-            label="수정상태"
-            outlined
-            dense
-            class="mb-4"
-          ></v-select>
           
           <div class="edit-history" v-if="editedNotification.updatedAt">
             <div class="edit-history-title">수정 이력</div>
@@ -118,9 +127,10 @@ export default {
       editedNotification: { 
         ...this.notification,
         treatment: this.notification.treatment || '',
-        editStatus: this.notification.editStatus || '처치중'
+        editStatus: this.notification.editStatus || '처리 중',
+        risk: this.notification.risk || '주의'
       },
-      editStatusOptions: ['처치중', '처치 완료']
+      editStatusOptions: ['처리 중', '처리 완료']
     };
   },
   
@@ -133,7 +143,8 @@ export default {
       this.editedNotification = { 
         ...newValue,
         treatment: newValue.treatment || '',
-        editStatus: newValue.editStatus || '처치중'
+        editStatus: newValue.editStatus || '처리 중',
+        risk: newValue.risk || '주의'
       };
     }
   },

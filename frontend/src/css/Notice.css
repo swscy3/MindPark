@@ -1,8 +1,17 @@
+/* 전체 컨테이너 크기 조정 */
+.v-container {
+  max-width: 93% !important;
+  width: 100% !important;
+  padding: 24px !important;
+}
+
 /* 전체적인 푸른 계열 테마 적용 */
 .notice-table {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 100, 255, 0.1);
+  min-height: 600px;
+  width: 100% !important;
 }
 
 /* 검색 필드 스타일 */
@@ -18,11 +27,24 @@
 .v-data-table-header th {
   font-weight: 600 !important;
   color: #1a56db !important;
+  padding: 16px 12px !important;
+  font-size: 16px !important;
+}
+
+/* 테이블 행 높이 증가 */
+.v-data-table tbody tr {
+  height: 60px !important;
+}
+
+.v-data-table tbody td {
+  padding: 16px 12px !important;
+  font-size: 15px !important;
 }
 
 /* 핀 아이콘 스타일 */
 .pin-icon {
   transform: rotate(45deg);
+  font-size: 18px !important;
 }
 
 /* 번호 셀 스타일 */
@@ -30,14 +52,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 16px;
 }
 
 /* 제목 셀 스타일 */
 .title-cell {
   cursor: pointer;
   transition: all 0.2s;
-  padding: 8px 0;
+  padding: 12px 0;
   color: #000000;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .title-cell:hover {
@@ -59,16 +84,67 @@
 .dialog-title {
   background-color: #e6f0ff;
   color: #1a56db;
+  padding: 20px 24px !important;
+  font-size: 18px !important;
 }
 
 .dialog-subtitle {
   font-size: 14px;
   color: #6b7280;
-  padding-top: 8px;
+  padding: 12px 24px 8px 24px !important;
 }
 
 .dialog-content {
   padding: 24px;
-  min-height: 200px;
+  min-height: 300px;
   white-space: pre-line;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* 검색 영역 확장 */
+.v-row.mb-5 {
+  margin-bottom: 32px !important;
+}
+
+.v-col {
+  padding: 8px 16px !important;
+}
+
+/* 페이지네이션 스타일 개선 */
+.v-data-table-footer {
+  padding: 16px !important;
+  border-top: 2px solid #e6f0ff !important;
+}
+
+/* 테이블 전체 여백 조정 */
+.v-data-table {
+  margin: 16px 0 !important;
+}
+
+/* 반응형 조정 */
+@media (max-width: 1200px) {
+  .v-container {
+    max-width: 100% !important;
+    padding: 16px !important;
+  }
+  
+  .v-data-table tbody td {
+    padding: 12px 8px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .v-data-table tbody tr {
+    height: 50px !important;
+  }
+  
+  .v-data-table tbody td {
+    padding: 12px 8px !important;
+    font-size: 14px !important;
+  }
+  
+  .title-cell {
+    font-size: 14px;
+  }
 }

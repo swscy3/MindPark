@@ -118,7 +118,7 @@ export default {
         {
           title: '처치내용',
           key: 'treatment',
-          width: '20%'
+          width: '18%'
         },
         {
           title: '업데이트시간',
@@ -128,7 +128,7 @@ export default {
         {
           title: '수정상태',
           key: 'editStatus',
-          width: '8%'
+          width: '12%'
         },
         {
           title: '수정버튼',
@@ -156,10 +156,12 @@ export default {
     
     getEditStatusColor(editStatus) {
       switch (editStatus) {
+        case '처리중':
         case '처치중':
           return 'warning';
-        case '처치 완료':
-          return 'success';
+        case '처리 완료':
+        case '완료':
+          return 'blue';
         default:
           return 'warning';
       }

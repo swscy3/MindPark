@@ -1,5 +1,5 @@
 <template>
-  <div class="heat-map-container">
+  <div class="heat-map-container" ref="mapContainer">
     <v-card class="map-card">
       <v-card-title class="map-title">
         <h2>현장 지도</h2>
@@ -52,7 +52,10 @@ export default {
   data() {
     return {
       map: null,
-      markersCluster: null
+      markersCluster: null,
+      resizeObserver: null,
+      lastTableHeight: 0, // 마지막으로 확인한 테이블 높이
+      heightSyncInterval: null // 인터벌 ID 저장
     };
   },
   computed: {
@@ -98,6 +101,13 @@ export default {
   mounted() {
     this.initMap();
     this.addMarkersToMap();
+    
+    // 높이 동기화는 지도 초기화 후에 설정
+    this.$nextTick(() => {
+      setTimeout(() => {
+        this.setupHeightSyncing();
+      }, 1000);
+    });
   },
   watch: {
     // props가 변경될 때마다 마커 업데이트
@@ -110,25 +120,104 @@ export default {
   },
   methods: {
     initMap() {
-      // 지도 초기화 (목포 중심, 적당한 줌 레벨)
-      this.map = L.map('map').setView([34.912787, 126.437601], 17);
+      // DOM 엘리먼트 확인
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        console.error('지도 DOM 엘리먼트가 존재하지 않습니다.');
+        return;
+      }
       
-      // 최소/최대 줌 레벨 제한 설정
-      this.map.setMinZoom(15); // 최소 줌
-      this.map.setMaxZoom(19); // 최대 줌
+      // 기존 지도가 있다면 제거
+      if (this.map) {
+        this.map.remove();
+      }
       
-      // OpenStreetMap 타일 레이어 추가
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(this.map);
+      try {
+        // 지도 초기화 (목포 중심, 적당한 줌 레벨)
+        this.map = L.map('map').setView([34.912787, 126.437601], 17);
+        
+        // 최소/최대 줌 레벨 제한 설정
+        this.map.setMinZoom(15); // 최소 줌
+        this.map.setMaxZoom(19); // 최대 줌
+        
+        // OpenStreetMap 타일 레이어 추가
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
+        
+        // 마커 클러스터 그룹 생성
+        this.markersCluster = L.markerClusterGroup({
+          chunkedLoading: true,
+          maxClusterRadius: 50
+        });
+        
+        this.map.addLayer(this.markersCluster);
+        
+        console.log('지도 초기화 완료');
+      } catch (error) {
+        console.error('지도 초기화 중 오류:', error);
+      }
+    },
+    
+    // 테이블과 지도 높이 동기화 설정
+    setupHeightSyncing() {
+      // 테이블 컨테이너 찾기
+      const tablesContainer = document.querySelector('.tables-container');
+      if (!tablesContainer) {
+        console.log('테이블 컨테이너를 찾을 수 없습니다.');
+        return;
+      }
       
-      // 마커 클러스터 그룹 생성
-      this.markersCluster = L.markerClusterGroup({
-        chunkedLoading: true,
-        maxClusterRadius: 50
-      });
+      // ResizeObserver로 테이블 높이 변화 감지
+      if (typeof ResizeObserver !== 'undefined') {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.syncMapHeight();
+        });
+        this.resizeObserver.observe(tablesContainer);
+      }
       
-      this.map.addLayer(this.markersCluster);
+      // 초기 높이 동기화
+      this.syncMapHeight();
+      
+      // 주기적 체크 (5초마다, 더 긴 간격으로)
+      this.heightSyncInterval = setInterval(() => {
+        this.syncMapHeight();
+      }, 5000);
+    },
+    
+    // 지도 높이를 테이블 높이와 맞춤
+    syncMapHeight() {
+      const tablesContainer = document.querySelector('.tables-container');
+      const mapContainer = this.$refs.mapContainer;
+      
+      if (tablesContainer && mapContainer) {
+        const tableHeight = tablesContainer.offsetHeight;
+        
+        // 높이가 변경되지 않았으면 실행하지 않음
+        if (this.lastTableHeight === tableHeight) {
+          return;
+        }
+        
+        // 최소 높이 560px 보장
+        const newHeight = Math.max(560, tableHeight);
+        
+        // 지도 컨테이너 높이 동적 조정
+        mapContainer.style.height = `${newHeight}px`;
+        
+        // 마지막 높이 업데이트
+        this.lastTableHeight = tableHeight;
+        
+        // Leaflet 지도 리사이즈
+        if (this.map) {
+          this.$nextTick(() => {
+            setTimeout(() => {
+              this.map.invalidateSize();
+            }, 100);
+          });
+        }
+        
+        console.log(`지도 높이 조정: ${newHeight}px (테이블: ${tableHeight}px)`);
+      }
     },
     
     addMarkersToMap() {
@@ -216,10 +305,17 @@ export default {
     // 데이터 새로고침 메서드 (외부에서 호출 가능)
     refreshData() {
       this.addMarkersToMap();
+      this.syncMapHeight();
     }
   },
   
   beforeUnmount() {
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
+    if (this.heightSyncInterval) {
+      clearInterval(this.heightSyncInterval);
+    }
     if (this.map) {
       this.map.remove();
     }
