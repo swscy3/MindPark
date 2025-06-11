@@ -31,30 +31,82 @@ backend/
     ├── model.py            # 데이터베이스 모델 (통합)
     ├── schema.py           # 공통 스키마 정의
     ├── web/                # 웹 관리자 인터페이스
-    │   ├── views/          # 웹 블루프린트
+    │   ├── views/          # 웹 컨트롤러 (블루프린트)
     │   │   ├── __init__.py         # 웹 블루프린트 통합
-    │   │   ├── auth.py             # 웹 인증 블루프린트
-    │   │   ├── alert.py            # 알림로그 블루프린트
-    │   │   ├── employees.py        # 근로자현황 블루프린트
-    │   │   ├── safety.py           # 위험 근로자 현황 블루프린트
-    │   │   └── monitoring.py       # 대시보드 블루프린트
-    │   └── services/       # 비즈니스 로직
+    │   │   ├── auth.py             # 웹 인증 컨트롤러
+    │   │   ├── alert.py            # 알림로그 컨트롤러
+    │   │   ├── employees.py        # 근로자현황 컨트롤러
+    │   │   ├── safety.py           # 위험 근로자 현황 컨트롤러
+    │   │   └── monitoring.py       # 대시보드 컨트롤러
+    │   └── service/        # 비즈니스 로직 서비스 계층
     │       ├── __init__.py         # 웹 서비스 통합
-    │       └── auth_service.py     # 웹 인증 서비스
-    ├── util/               # 공통 유틸리티 라우트
+    │       ├── auth_service.py     # 웹 인증 서비스
+    │       ├── alert_service.py    # 알림로그 비즈니스 로직
+    │       ├── employee_service.py # 근로자현황 비즈니스 로직
+    │       ├── monitoring_service.py # 대시보드 비즈니스 로직
+    │       └── safety_service.py   # 위험 근로자 비즈니스 로직
+    ├── util/               # 공통 유틸리티
     │   ├── __init__.py             # 유틸 블루프린트 통합
     │   ├── util.py                 # 날씨 정보
     │   ├── auth.py                 # 토큰 쿼리 검증 및 계정 정보 변경 함수
     │   ├── time_utils.py           # 한국시간 변환 공용 유틸리티
     │   └── debug.py                # 디버깅용 개발자 함수
     └── mobile/             # 모바일 근로자 인터페이스
-        ├── views/          # 모바일 블루프린트
+        ├── views/          # 모바일 컨트롤러 (블루프린트)
         │   ├── __init__.py         # 모바일 블루프린트 통합
-        │   ├── auth.py             # 모바일 인증 블루프린트
-        │   ├── device.py           # 모바일 측정 블루프린트
-        │   └── profile.py          # 개인정보 수정 블루프린트
-        └── services/       # 비즈니스 로직
+        │   ├── auth.py             # 모바일 인증 컨트롤러
+        │   ├── device.py           # 모바일 측정 컨트롤러
+        │   └── profile.py          # 개인정보 수정 컨트롤러
+        └── service/        # 비즈니스 로직 서비스 계층
+            ├── __init__.py         # 모바일 서비스 통합
+            └── auth_service.py     # 모바일 인증 서비스
 ```
+
+## 아키텍처 설계
+
+### MVC 패턴 적용
+
+본 프로젝트는 **Model-View-Controller(MVC) 패턴**을 기반으로 한 **서비스 계층 아키텍처**를 적용하여 개발되었습니다:
+
+#### 📁 Model Layer (`app/model.py`)
+- 데이터베이스 모델 정의 (SQLAlchemy ORM)
+- 데이터 구조 및 관계 정의
+
+#### 🎯 Controller Layer (`app/web/views/`, `app/mobile/views/`)
+- HTTP 요청/응답 처리
+- 라우팅 및 인증 처리
+- 서비스 계층 호출
+
+#### 🔧 Service Layer (`app/web/service/`, `app/mobile/service/`)
+- **핵심 비즈니스 로직 처리**
+- 데이터베이스 쿼리 및 조작
+- 복잡한 데이터 변환 로직
+- 에러 처리 및 유효성 검증
+
+#### 🛠 Utility Layer (`app/util/`)
+- 공통 유틸리티 함수
+- 시간 변환, 인증, 디버깅 등
+
+### 서비스 계층 상세
+
+#### 웹 관리자 서비스 (`app/web/service/`)
+
+- **AuthService**: 관리자 인증 및 권한 관리
+- **AlertService**: 건강 이상징후 데이터 처리 및 상태 관리
+- **EmployeeService**: 직원 정보 조회 및 출근 상태 관리
+- **MonitoringService**: 대시보드 모니터링 데이터 통합 처리
+- **SafetyService**: 위험도별 직원 분류 및 안전 관리
+
+#### 모바일 앱 서비스 (`app/mobile/service/`)
+
+- **AuthService**: 모바일 근로자 인증 관리
+
+### 장점
+
+1. **코드 재사용성**: 비즈니스 로직을 서비스 계층으로 분리하여 여러 컨트롤러에서 재사용 가능
+2. **유지보수성**: 각 계층의 책임이 명확히 분리되어 수정 및 확장이 용이
+3. **테스트 용이성**: 서비스 계층을 독립적으로 테스트 가능
+4. **확장성**: 새로운 기능 추가 시 기존 코드에 미치는 영향 최소화
 
 ## 모듈 설명
 
@@ -74,19 +126,29 @@ backend/
 
 **app/web/**: 웹 관리자 인터페이스
 
-- `views/auth.py`: 웹 관리자 인증 (로그인, 로그아웃)
-- `views/monitoring.py`: 대시보드 및 실시간 모니터링
-- `views/employees.py`: 근로자 현황 및 생체정보 조회
-- `views/alert.py`: 알림로그 관리 (건강 이상징후 처리)
-- `views/safety.py`: 위험 근로자 현황 모니터링
-- `services/`: 비즈니스 로직 분리 (MVC 패턴)
+- **Views (Controllers)**:
+  - `auth.py`: 웹 관리자 인증 (로그인, 로그아웃)
+  - `monitoring.py`: 대시보드 및 실시간 모니터링
+  - `employees.py`: 근로자 현황 및 생체정보 조회
+  - `alert.py`: 알림로그 관리 (건강 이상징후 처리)
+  - `safety.py`: 위험 근로자 현황 모니터링
+
+- **Services (Business Logic)**:
+  - `auth_service.py`: 관리자 인증 비즈니스 로직
+  - `alert_service.py`: 건강 이상징후 데이터 처리 로직
+  - `employee_service.py`: 직원 정보 및 출근 상태 처리 로직
+  - `monitoring_service.py`: 대시보드 통합 데이터 처리 로직
+  - `safety_service.py`: 위험도별 직원 분류 및 안전 관리 로직
 
 **app/mobile/**: 모바일 앱 인터페이스
 
-- `views/auth.py`: 모바일 근로자 인증 (로그인, 로그아웃)
-- `views/profile.py`: 개인정보 수정 (마이페이지 관리)
-- `views/device.py`: 디바이스 측정 데이터 처리 (센서 데이터 수집)
-- `services/`: 비즈니스 로직 분리 (MVC 패턴)
+- **Views (Controllers)**:
+  - `auth.py`: 모바일 근로자 인증 (로그인, 로그아웃)
+  - `profile.py`: 개인정보 수정 (마이페이지 관리)
+  - `device.py`: 디바이스 측정 데이터 처리 (센서 데이터 수집)
+
+- **Services (Business Logic)**:
+  - `auth_service.py`: 모바일 인증 비즈니스 로직
 
 **app/schema.py**: 요청/응답 스키마 정의 (Marshmallow)
 
@@ -100,6 +162,7 @@ backend/
 ## 기술 스택
 
 - **백엔드**: Flask 2.3+, Python 3.11+
+- **아키텍처**: MVC 패턴 + 서비스 계층
 - **데이터베이스**: SQLAlchemy, MariaDB
 - **인증**: JWT (Flask-JWT-Extended)
 - **검증**: Marshmallow
@@ -198,7 +261,6 @@ python app.py
 
 - `GET /emp/list/stream` - 직원 목록 스트림 (SSE)
 - `GET /emp/<emp_id>/detail` - 특정 직원 상세 정보
-- `GET /emp/debug/attendance/<emp_id>` - 직원 출입 기록 디버그
 
 ### 모바일 앱 인터페이스 (`/api/mobile`)
 
