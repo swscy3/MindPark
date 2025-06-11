@@ -82,7 +82,7 @@ CREATE TABLE EMPLOYEE_ATTENDANCE (
 );
 
 CREATE TABLE DEVICE_MEASUREMENT (
-    measurement_id CHAR(10) PRIMARY KEY,
+    measurement_id CHAR(25) PRIMARY KEY,
     emp_id CHAR(10),
     device_id CHAR(10),
     measure_time DATETIME,
