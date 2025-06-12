@@ -19,26 +19,8 @@ def record_measurement():
     - measurement_id 생성
     - 현재 시각 설정
     - 위험도 NULL로 설정
-    - 터미널에 출력
     """
     try:
-        
-        print(f"=== 요청 디버깅 ===")
-        print(f"Content-Type: {request.content_type}")
-        print(f"Raw data: {request.get_data()}")
-        
-        # JWT 토큰에서 사용자 ID 추출
-        current_user = get_jwt_identity()
-        print(f"Current user: {current_user}")
-
-        # 요청에서 데이터 추출
-        data = request.get_json()
-        print(f"Parsed JSON: {data}")
-
-        # 필수 데이터 확인
-        if not data or 'product' not in data:
-            print("에러: product 필드 없음")
-            return jsonify({'error': '디바이스 이름(product)은 필수입니다'}), 400
         # JWT 토큰에서 사용자 ID 추출
         current_user = get_jwt_identity()
 
