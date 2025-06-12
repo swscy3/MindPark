@@ -1,38 +1,20 @@
 <template>
   <v-container>
-    <!-- 검색 기능 -->
-    <v-row class="mb-5">
-      <v-col cols="12" sm="6" md="4">
-        <v-text-field
-          v-model="search"
-          label="검색"
-          append-icon="mdi-magnify"
-          hide-details
-          class="search-field"
-        ></v-text-field>
-      </v-col>
-      <v-col cols="12" sm="6" md="4">
-        <v-select
-          v-model="searchType"
-          :items="searchTypes"
-          label="검색 조건"
-          hide-details
-          class="search-type"
-        ></v-select>
-      </v-col>
-    </v-row>
+    <!-- SearchBox 컴포넌트 사용 -->
+    <div class="search-section">
+      <SearchBox 
+        v-model="search"
+        placeholder="제목, 작성자 검색"
+        @search="handleSearch"
+      />
+    </div>
 
     <!-- 공지사항 테이블 -->
     <v-data-table
       :headers="headers"
-      :items="displayedItems"
-      :search="search"
-      :custom-filter="customFilter"
+      :items="paginatedNotices"
       class="notice-table"
-      :items-per-page="10"
-      :footer-props="{
-        'items-per-page-options': [5, 10, 15, 20],
-      }"
+      hide-default-footer
     >
       <!-- 일렬번호 -->
       <template v-slot:item.number="{ item }">
@@ -58,6 +40,14 @@
       </template>
     </v-data-table>
 
+    <!-- 커스텀 페이지네이션 -->
+    <Pagination 
+      :current-page="currentPage"
+      :total-items="filteredNotices.length"
+      :items-per-page="pageSize"
+      @page-change="handlePageChange"
+    />
+
     <!-- 공지사항 상세 모달 -->
     <v-dialog v-model="dialog" max-width="600px">
       <v-card v-if="selectedNotice">
@@ -81,13 +71,20 @@
 </template>
 
 <script>
+import SearchBox from '../components/SearchBox.vue';
+import Pagination from '../components/Pagination.vue';
+
 export default {
   name: 'NoticeTable',
+  components: {
+    SearchBox,
+    Pagination
+  },
   data() {
     return {
       search: '',
-      searchType: '제목',
-      searchTypes: ['제목', '작성자'],
+      currentPage: 1,
+      pageSize: 10,
       headers: [
         { title: '번호', align: 'center', key: 'number', width: '80px' },
         { title: '제목', align: 'start', key: 'title' },
@@ -123,20 +120,35 @@ export default {
         .sort((a, b) => new Date(b.date) - new Date(a.date));
       
       return [...pinnedNotices, ...regularNotices];
+    },
+    filteredNotices() {
+      if (!this.search) return this.displayedItems;
+      
+      const searchLower = this.search.toString().toLowerCase();
+      return this.displayedItems.filter(item => {
+        return item.title.toLowerCase().includes(searchLower) ||
+               item.author.toLowerCase().includes(searchLower);
+      });
+    },
+    paginatedNotices() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredNotices.slice(start, end);
+    }
+  },
+  watch: {
+    search() {
+      // 검색어가 변경되면 첫 페이지로 이동
+      this.currentPage = 1;
     }
   },
   methods: {
-    customFilter(value, search, item) {
-      if (!search) return true;
-      
-      const searchLower = search.toString().toLowerCase();
-      if (this.searchType === '제목') {
-        return item.title.toLowerCase().includes(searchLower);
-      } else if (this.searchType === '작성자') {
-        return item.author.toLowerCase().includes(searchLower);
-      }
-      
-      return false;
+    handleSearch(keyword) {
+      // 실시간 검색이므로 추가 동작 불필요
+      // watch에서 자동으로 필터링됨
+    },
+    handlePageChange(page) {
+      this.currentPage = page;
     },
     formatDate(dateString) {
       const date = new Date(dateString);
@@ -185,5 +197,17 @@ export default {
   }
 }
 </script>
+
+<style>
+/* 검색 섹션 스타일 */
+.search-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* 기존 Notice.css 내용들은 별도 파일에서 import */
+</style>
 
 <style src="../css/Notice.css"></style>

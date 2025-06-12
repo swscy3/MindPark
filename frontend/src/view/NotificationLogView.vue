@@ -5,17 +5,49 @@
         알림 로그 조회
       </v-card-title>
       
-      <NotificationFilter 
-        @search="handleSearch" 
-        @filter="handleFilter"
-        @reset="resetFilters"
-      />
+      <!-- SearchBox 컴포넌트만 사용 -->
+      <div class="search-section">
+        <SearchBox 
+          v-model="filters.keyword"
+          placeholder="사번, 이름, 증상, 조치사항 검색"
+          @search="handleSearch"
+        />
+      </div>
       
       <NotificationTable 
-        :notifications="filteredNotifications" 
+        :notifications="paginatedNotifications" 
         :loading="loading"
         @edit="openEditModal"
       />
+      
+      <!-- 페이지네이션 추가 -->
+      <div class="pagination">
+        <button 
+          class="pagination-button" 
+          :disabled="currentPage === 1" 
+          @click="currentPage--"
+        >
+          &lt;
+        </button>
+        
+        <button 
+          v-for="page in totalPages" 
+          :key="page" 
+          class="pagination-button" 
+          :class="{ 'active': currentPage === page }"
+          @click="currentPage = page"
+        >
+          {{ page }}
+        </button>
+        
+        <button 
+          class="pagination-button" 
+          :disabled="currentPage === totalPages" 
+          @click="currentPage++"
+        >
+          &gt;
+        </button>
+      </div>
       
       <NotificationEditModal 
         v-if="selectedNotification"
@@ -30,7 +62,7 @@
 
 <script>
 import axios from 'axios';
-import NotificationFilter from '../components/NotificationFilter.vue';
+import SearchBox from '../components/SearchBox.vue';
 import NotificationTable from '../components/NotificationTable.vue';
 import NotificationEditModal from '../components/NotificationEditModal.vue';
 
@@ -38,7 +70,7 @@ export default {
   name: 'NotificationLogView',
   
   components: {
-    NotificationFilter,
+    SearchBox,
     NotificationTable,
     NotificationEditModal
   },
@@ -49,17 +81,41 @@ export default {
       filteredNotifications: [],
       loading: false,
       filters: {
-        keyword: '',
-        startDate: null,
-        endDate: null
+        keyword: ''
       },
       selectedNotification: null,
       showEditModal: false,
+      
+      // 페이지네이션 관련
+      currentPage: 1,
+      pageSize: 10,
       
       // SSE 연결 관리
       eventSource: null,
       error: null
     };
+  },
+  
+  computed: {
+    // 페이지네이션을 위한 계산된 속성
+    totalPages() {
+      return Math.ceil(this.filteredNotifications.length / this.pageSize);
+    },
+    
+    // 현재 페이지에 표시할 알림 데이터
+    paginatedNotifications() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = start + this.pageSize;
+      return this.filteredNotifications.slice(start, end);
+    }
+  },
+  
+  watch: {
+    // 키워드 변경 시 자동으로 필터 적용
+    'filters.keyword'() {
+      this.applyFilters();
+      this.currentPage = 1; // 검색 시 첫 페이지로 이동
+    }
   },
   
   methods: {
@@ -256,23 +312,10 @@ export default {
       this.$toast?.error('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     },
     
+    // SearchBox에서 검색 이벤트 처리
     handleSearch(keyword) {
-      this.filters.keyword = keyword;
-      this.applyFilters();
-    },
-    
-    handleFilter(filters) {
-      this.filters = { ...filters };
-      this.applyFilters();
-    },
-    
-    resetFilters() {
-      this.filters = {
-        keyword: '',
-        startDate: null,
-        endDate: null
-      };
-      this.filteredNotifications = [...this.notifications];
+      // 실시간 검색이므로 추가 동작 불필요
+      // watch에서 자동으로 applyFilters 호출됨
     },
     
     applyFilters() {
@@ -286,22 +329,6 @@ export default {
           item.name.toLowerCase().includes(keyword) ||
           item.symptom.toLowerCase().includes(keyword) || 
           item.treatment.toLowerCase().includes(keyword)
-        );
-      }
-      
-      // 날짜 필터
-      if (this.filters.startDate) {
-        const startDate = new Date(this.filters.startDate);
-        result = result.filter(item => 
-          new Date(item.createdAt) >= startDate
-        );
-      }
-      
-      if (this.filters.endDate) {
-        const endDate = new Date(this.filters.endDate);
-        endDate.setHours(23, 59, 59);
-        result = result.filter(item => 
-          new Date(item.createdAt) <= endDate
         );
       }
       

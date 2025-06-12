@@ -11,6 +11,7 @@ export const blueColors = {
 export const defaultChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  aspectRatio: 1,
   scales: {
     y: {
       beginAtZero: true,

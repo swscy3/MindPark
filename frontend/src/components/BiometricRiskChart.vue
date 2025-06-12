@@ -1,13 +1,15 @@
 <template>
   <div class="biometric-risk-chart">
     <h3>{{ title }}</h3>
+    
     <div class="chart-container">
-      <canvas ref="chartCanvas" :key="chartKey"></canvas>
+      <canvas ref="chartCanvas" width="300" height="300"></canvas>
       <div class="center-text">
         <div class="total-count">{{ totalWorkers }}</div>
         <div class="total-label">출근자 수</div>
       </div>
     </div>
+    
     <div class="chart-legend">
       <div class="legend-item" v-for="(item, index) in legendItems" :key="index">
         <div class="legend-color" :class="item.class"></div>
@@ -19,6 +21,7 @@
 </template>
 
 <script>
+import Chart from 'chart.js/auto';
 import { employeeData } from '../utils/eventBus.js'
 import { watch } from 'vue'
 
@@ -41,7 +44,8 @@ export default {
     return {
       chart: null,
       attendedWorkers: [],
-      chartKey: 0 // 강제 리렌더링용
+      isChartReady: false,
+      updateTimeout: null
     };
   },
   computed: {
@@ -65,6 +69,13 @@ export default {
       ).length;
       
       const normalCount = this.totalWorkers - (dangerCount + cautionCount);
+      
+      console.log('위험도 계산 결과:', {
+        총출근자: this.totalWorkers,
+        위험: dangerCount,
+        주의: cautionCount,
+        정상: normalCount
+      });
       
       return {
         normal: Math.max(0, normalCount),
@@ -97,46 +108,36 @@ export default {
       ];
     }
   },
-  async mounted() {
+  mounted() {
     console.log('BiometricRiskChart 마운트됨')
-    
     this.updateAttendedWorkers()
     
     // 출근자 데이터 변경 감지
     watch(employeeData, () => {
       console.log('출근자 데이터 변경 감지')
       this.updateAttendedWorkers()
-      this.recreateChart()
+      this.scheduleChartUpdate()
     }, { deep: true })
     
-    // 동적 임포트로 Chart.js 로드
-    await this.loadChartJS()
-    await this.$nextTick()
-    this.initChart()
+    // 차트 초기화
+    this.$nextTick(() => {
+      this.initChart()
+    })
   },
   beforeUnmount() {
-    this.destroyChart();
+    this.clearUpdateTimeout()
+    this.destroyChart()
   },
   watch: {
     riskWorkersData: {
       handler() {
-        this.recreateChart()
+        console.log('위험자 데이터 변경됨')
+        this.scheduleChartUpdate()
       },
       deep: true
     }
   },
   methods: {
-    // Chart.js 동적 로드
-    async loadChartJS() {
-      try {
-        const Chart = await import('chart.js/auto')
-        this.Chart = Chart.default
-        console.log('Chart.js 로드 완료')
-      } catch (error) {
-        console.error('Chart.js 로드 실패:', error)
-      }
-    },
-    
     updateAttendedWorkers() {
       const employees = employeeData.value || []
       this.attendedWorkers = employees.filter(emp => emp.attendance_status === '출근중')
@@ -144,40 +145,48 @@ export default {
     },
     
     initChart() {
-      if (!this.Chart || !this.$refs.chartCanvas) {
-        console.error('Chart.js 또는 캔버스가 준비되지 않음')
+      if (!this.$refs.chartCanvas) {
+        console.error('캔버스를 찾을 수 없습니다.')
         return;
       }
+      
+      // 기존 차트 정리
+      this.destroyChart()
       
       try {
         const ctx = this.$refs.chartCanvas.getContext('2d');
         
-        // 완전히 독립적인 설정
-        this.chart = new this.Chart(ctx, {
+        this.chart = new Chart(ctx, {
           type: 'doughnut',
           data: {
             labels: ['정상', '주의', '위험'],
             datasets: [{
               data: [this.riskCounts.normal, this.riskCounts.caution, this.riskCounts.danger],
               backgroundColor: [
-                'rgba(76, 175, 80, 0.8)',
-                'rgba(255, 152, 0, 0.8)',
-                'rgba(244, 67, 54, 0.8)'
+                'rgba(76, 175, 80, 0.8)',   // 정상 - 초록
+                'rgba(255, 152, 0, 0.8)',   // 주의 - 주황
+                'rgba(244, 67, 54, 0.8)'    // 위험 - 빨강
               ],
               borderColor: [
                 '#4CAF50',
-                '#FF9800',
+                '#FF9800', 
                 '#F44336'
               ],
               borderWidth: 2
             }]
           },
           options: {
-            responsive: false, // 완전히 끄기
+            responsive: true,
             maintainAspectRatio: true,
+            aspectRatio: 1,
             plugins: {
-              legend: { display: false },
+              legend: {
+                display: false
+              },
               tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
                 callbacks: {
                   label: (context) => {
                     const value = context.parsed;
@@ -188,33 +197,88 @@ export default {
                   }
                 }
               }
-            }
+            },
+            cutout: '60%'
           }
         });
         
+        this.isChartReady = true
         console.log('차트 초기화 완료');
       } catch (error) {
-        console.error('차트 초기화 중 오류:', error);
+        console.error('차트 초기화 실패:', error);
+        this.isChartReady = false
       }
     },
     
-    recreateChart() {
-      this.destroyChart();
-      this.chartKey++; // 강제 리렌더링
+    scheduleChartUpdate() {
+      // 기존 타임아웃 클리어
+      this.clearUpdateTimeout()
+      
+      // 100ms 후에 업데이트 실행 (빠른 연속 업데이트 방지)
+      this.updateTimeout = setTimeout(() => {
+        this.safeUpdateChart()
+      }, 100)
+    },
+    
+    safeUpdateChart() {
+      if (!this.isChartReady || !this.chart) {
+        console.log('차트가 준비되지 않아 업데이트 생략')
+        return
+      }
+      
+      try {
+        // 차트 인스턴스 유효성 검사
+        if (!this.chart.canvas || !this.chart.canvas.parentNode) {
+          console.log('차트 캔버스가 DOM에서 제거됨, 재초기화 필요')
+          this.reinitializeChart()
+          return
+        }
+        
+        // 데이터 업데이트
+        const newData = [
+          this.riskCounts.normal, 
+          this.riskCounts.caution, 
+          this.riskCounts.danger
+        ]
+        
+        this.chart.data.datasets[0].data = newData
+        this.chart.update('active') // 'none' 대신 'active' 사용
+        
+        console.log('차트 데이터 업데이트 완료:', newData)
+      } catch (error) {
+        console.error('차트 업데이트 실패:', error)
+        // 업데이트 실패 시 재초기화
+        this.reinitializeChart()
+      }
+    },
+    
+    reinitializeChart() {
+      console.log('차트 재초기화 시작')
+      this.isChartReady = false
+      
       this.$nextTick(() => {
-        this.initChart();
-      });
+        this.initChart()
+      })
+    },
+    
+    clearUpdateTimeout() {
+      if (this.updateTimeout) {
+        clearTimeout(this.updateTimeout)
+        this.updateTimeout = null
+      }
     },
     
     destroyChart() {
       if (this.chart) {
         try {
-          this.chart.destroy();
-          this.chart = null;
+          this.chart.destroy()
+          console.log('차트 제거 완료')
         } catch (error) {
-          console.error('차트 제거 중 오류:', error);
+          console.error('차트 제거 실패:', error)
         }
+        this.chart = null
       }
+      this.isChartReady = false
     }
   }
 }

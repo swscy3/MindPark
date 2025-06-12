@@ -73,32 +73,25 @@
       </div>
     </div>
     
-    <div class="pagination-controls" v-if="!loading && filteredWorkers.length > 0">
-      <div class="page-info">{{ currentPage }} / {{ totalPages }} 페이지</div>
-      <div class="pagination-buttons">
-        <button class="pagination-button" @click="goToPage(1)" :disabled="currentPage === 1">처음</button>
-        <button class="pagination-button" @click="prevPage" :disabled="currentPage === 1">←</button>
-        <div class="page-numbers">
-          <button 
-            v-for="page in displayedPages" 
-            :key="page" 
-            @click="goToPage(page)" 
-            :class="{ 'active-page': currentPage === page }"
-            class="page-number"
-          >
-            {{ page }}
-          </button>
-        </div>
-        <button class="pagination-button" @click="nextPage" :disabled="currentPage === totalPages">→</button>
-        <button class="pagination-button" @click="goToPage(totalPages)" :disabled="currentPage === totalPages">마지막</button>
-      </div>
-    </div>
+    <!-- 커스텀 페이지네이션 -->
+    <Pagination 
+      v-if="!loading && filteredWorkers.length > 0"
+      :current-page="currentPage"
+      :total-items="filteredWorkers.length"
+      :items-per-page="workersPerPage"
+      @page-change="handlePageChange"
+    />
   </div>
 </template>
 
 <script>
+import Pagination from '../components/Pagination.vue';
+
 export default {
   name: 'WorkerStatus',
+  components: {
+    Pagination
+  },
   data() {
     return {
       activeTab: 'danger',
@@ -137,30 +130,6 @@ export default {
       }
       
       return groups;
-    },
-    
-    totalPages() {
-      return Math.ceil(this.filteredWorkers.length / this.workersPerPage);
-    },
-    
-    // 페이지 네비게이션에 표시할 페이지 번호
-    displayedPages() {
-      const pages = [];
-      const maxPageButtons = 5; // 한 번에 표시할 페이지 버튼 수
-      
-      let startPage = Math.max(1, this.currentPage - Math.floor(maxPageButtons / 2));
-      let endPage = startPage + maxPageButtons - 1;
-      
-      if (endPage > this.totalPages) {
-        endPage = this.totalPages;
-        startPage = Math.max(1, endPage - maxPageButtons + 1);
-      }
-      
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-      
-      return pages;
     }
   },
   async mounted() {
@@ -175,6 +144,9 @@ export default {
     }
   },
   methods: {
+    handlePageChange(page) {
+      this.currentPage = page;
+    },
     async fetchWorkers() {
       this.loading = true;
       
@@ -303,22 +275,7 @@ export default {
         // 아직 확장되지 않은 경우, 배열에 추가 (펼치기)
         this.expandedDevices.push(workerId);
       }
-    },
-    prevPage() {
-      if (this.currentPage > 1) {
-        this.currentPage--;
-      }
-    },
-    nextPage() {
-      if (this.currentPage < this.totalPages) {
-        this.currentPage++;
-      }
-    },
-    goToPage(page) {
-      if (page >= 1 && page <= this.totalPages) {
-        this.currentPage = page;
-      }
-    },
+    }
   },
   watch: {
     // activeTab이 변경될 때마다 currentPage를 1로 리셋하고 새로운 API 호출

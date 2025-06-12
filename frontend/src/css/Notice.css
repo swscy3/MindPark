@@ -14,11 +14,6 @@
   width: 100% !important;
 }
 
-/* 검색 필드 스타일 */
-.search-field, .search-type {
-  border-radius: 6px;
-}
-
 /* 테이블 헤더 스타일 */
 .v-data-table-header {
   background-color: #e6f0ff !important;
@@ -102,15 +97,6 @@
   line-height: 1.6;
 }
 
-/* 검색 영역 확장 */
-.v-row.mb-5 {
-  margin-bottom: 32px !important;
-}
-
-.v-col {
-  padding: 8px 16px !important;
-}
-
 /* 페이지네이션 스타일 개선 */
 .v-data-table-footer {
   padding: 16px !important;
@@ -120,6 +106,14 @@
 /* 테이블 전체 여백 조정 */
 .v-data-table {
   margin: 16px 0 !important;
+}
+
+/* 검색 섹션 스타일 추가 */
+.search-section {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
 }
 
 /* 반응형 조정 */
@@ -147,4 +141,9 @@
   .title-cell {
     font-size: 14px;
   }
-}
+  
+  .search-section {
+    margin-bottom: 16px;
+    padding: 12px;
+  }
+} 

@@ -1,68 +1,41 @@
-.notification-log-container {
+/* 기존 스타일들... */
+
+/* 페이지네이션 스타일링 */
+.pagination {
   display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  background-color: #f7fafb;
-  padding: 20px;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 5px;
 }
 
-.notification-log-card {
-  margin-bottom: 20px;
-  border-radius: 8px;
-  background-color: white;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+.pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid #dee2e6;
+  background-color: #fff;
+  color: #495057;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
 }
 
-.notification-log-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #0d47a1;
-  padding: 16px;
-  border-bottom: 1px solid #e0e0e0;
+.pagination-button.active {
+  background-color: #90caf9;
+  color: #fff;
+  border-color: #64b5f6;
 }
 
-.notification-log-title.completed {
-  color: #2e7d32; /* 초록색 계열 */
-}
-
-/* 완료 상태 관련 스타일 */
-.status-completed {
-  color: #1976d2 !important;
-  background-color: #e3f2fd !important;
-  border: 1px solid #1976d2 !important;
-  font-weight: 600;
-}
-
-.status-badge.completed {
-  background-color: #1976d2 !important;
-  color: white !important;
-}
-
-.notification-row.completed {
+.pagination-button:hover:not(:disabled):not(.active) {
   background-color: #f8f9fa;
-  border-left: 4px solid #1976d2;
+  border-color: #ced4da;
 }
 
-.notification-row.completed .status-text {
-  color: #1976d2;
-  font-weight: 600;
-}
-
-/* 처리중 상태 스타일 (기존 유지) */
-.status-processing {
-  color: #f57c00;
-  background-color: #fff3e0;
-  border: 1px solid #f57c00;
-}
-
-.status-badge.processing {
-  background-color: #f57c00;
-  color: white;
-}
-
-/* 반응형 레이아웃 */
-@media (max-width: 960px) {
-  .notification-log-container {
-    padding: 16px;
-  }
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }

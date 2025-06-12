@@ -215,6 +215,7 @@ NX=51
 NY=69
 
 PICTURE_PATH=/root
+VUE_DIST_PATH=/root
 ```
 
 **5. 데이터베이스 초기화**
