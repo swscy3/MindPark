@@ -1,15 +1,23 @@
 import pandas as pd
 import mysql.connector
+import os
+from dotenv import load_dotenv
+
+# .env 파일 로드
+load_dotenv(os.path.join(os.path.dirname(__file__), '../backend/.env'))
 
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'ScE1234**',
+    'password': 'password',
     'database': 'mindpark'
 }
 
+# 환경 변수에서 데이터 경로 읽기
+DB_DATA_PATH = os.environ.get('DB_DATA_PATH', '/root/proj/MindPark/database/datafile')
+
 def insert_employee(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/employee.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'employee.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO EMPLOYEE (
@@ -25,7 +33,7 @@ def insert_employee(cursor):
     print("✅ EMPLOYEE 삽입 완료")
     
 def insert_admin(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/admin.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'admin.csv'))
     df.columns = df.columns.str.strip()
     for _, row in df.iterrows():
         cursor.execute("""
@@ -36,7 +44,7 @@ def insert_admin(cursor):
     print("✅ ADMIN 삽입 완료")
 
 def insert_employee_health(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/employee_health.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'employee_health.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO EMPLOYEE_HEALTH (
@@ -51,7 +59,7 @@ def insert_employee_health(cursor):
     print("✅ EMPLOYEE_HEALTH 삽입 완료")
 
 def insert_emergency_contact(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/emergency_contact.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'emergency_contact.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO EMERGENCY_CONTACT (
@@ -63,7 +71,7 @@ def insert_emergency_contact(cursor):
     print("✅ EMERGENCY_CONTACT 삽입 완료")
 
 def insert_device(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/device.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'device.csv'))
     df.columns = df.columns.str.strip()  # 공백 제거 (혹시 모를 오염 대비)
     for _, row in df.iterrows():
         cursor.execute("""
@@ -76,7 +84,7 @@ def insert_device(cursor):
     print("✅ DEVICE 삽입 완료")
 
 def insert_device_management(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/employee_attendance.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'employee_attendance.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO EMPLOYEE_ATTENDANCE (
@@ -90,7 +98,7 @@ def insert_device_management(cursor):
     print("✅ EMPLOYEE_ATTENDANCE 삽입 완료")
     
 def insert_device_measurement(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/device_measurement.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'device_measurement.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO DEVICE_MEASUREMENT (
@@ -121,7 +129,7 @@ def insert_device_measurement(cursor):
 
 
 def insert_health_anomaly(cursor):
-    df = pd.read_csv('/root/MindPark/database/datafile/health_anomaly.csv')
+    df = pd.read_csv(os.path.join(DB_DATA_PATH, 'health_anomaly.csv'))
     for _, row in df.iterrows():
         cursor.execute("""
             INSERT INTO HEALTH_ANOMALY (

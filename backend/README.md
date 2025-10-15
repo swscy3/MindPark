@@ -202,20 +202,29 @@ pip install -r requirements.txt
 **4. 환경 변수 설정 (.env 파일 생성)**
 
 ```env
-SECRET_KEY=your-secret-key-here
-JWT_SECRET_KEY=your-jwt-secret-key-here
+SECRET_KEY=mindpark-secret-key-change-in-production
+JWT_SECRET_KEY=mindpark-jwt-secret-key-change-in-production
 JWT_ACCESS_TOKEN_EXPIRES=3600
-DEV_DATABASE_URL=mysql+pymysql://username:password@localhost:3306/database_name
+DEV_DATABASE_URL=mysql+pymysql://root:password@localhost:3306/mindpark
 FLASK_DEBUG=1
 
+# Weather API
 WHETHER_API_KEY=your-weather-api-key-here
 WHETHER_API_URL=http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst
-
 NX=51
 NY=69
 
-PICTURE_PATH=/root
-VUE_DIST_PATH=/root
+# Project Paths
+PROJECT_ROOT=/root/proj/MindPark
+PICTURE_PATH=/root/proj/MindPark/database/picture
+VUE_DIST_PATH=/root/proj/MindPark/frontend/dist
+
+# ML Model Paths
+ML_MODEL_PATH=/root/proj/MindPark/backend/app/mobile/service/models/heat_illness_model.h5
+ACC_GYR_CSV_PATH=/root/proj/MindPark/backend/app/mobile/service/acc_gyr.csv
+
+# Database Initial Data Paths
+DB_DATA_PATH=/root/proj/MindPark/database/datafile
 ```
 
 **5. 데이터베이스 초기화**
@@ -347,6 +356,21 @@ curl http://localhost:5000/api/debug/routes
 ## 라이센스
 
 이 프로젝트는 MIT License 하에 배포됩니다.
+
+## 최근 변경 사항
+
+### 2025-10-15
+- **환경 변수 리팩토링**: 하드코딩된 경로를 환경 변수로 분리
+  - `device_service.py`: ML 모델, CSV 경로를 환경 변수로 (ML_MODEL_PATH, ACC_GYR_CSV_PATH)
+  - `create_tables.py`: 데이터 파일 경로를 환경 변수로 (DB_DATA_PATH)
+  - `.env` 파일에 모든 경로 변수 추가
+
+### 초기 설정
+- Python 가상환경 생성 (`/root/proj/MindPark/backend/venv`)
+- 의존성 설치 완료 (requirements.txt + tensorflow)
+- 데이터베이스 스키마 및 초기 데이터 적재 완료
+- 프론트엔드 빌드 완료
+- 백엔드 서버 정상 동작 확인 (http://127.0.0.1:3000, http://10.200.0.2:3000)
 
 ## 프로젝트 정보
 

@@ -103,14 +103,14 @@
  
  <script>
  import SearchBox from '../components/SearchBox.vue'
- import cpr from '/root/MindPark/frontend/src/assets/CPR 이미지.jpg'
- import heat from '/root/MindPark/frontend/src/assets/온열질환 응급대처.png'
- import fall from '/root/MindPark/frontend/src/assets/골절응급처치.png'
- import fall2 from '/root/MindPark/frontend/src/assets/삼각건.png'
- import fall3 from '/root/MindPark/frontend/src/assets/부목대기.png'
- import fire from '/root/MindPark/frontend/src/assets/화재대피.png'
- import fire2 from '/root/MindPark/frontend/src/assets/화재.jpg'
- import hemostasis from '/root/MindPark/frontend/src/assets/지혈.jpg'
+ import cpr from '@/assets/CPR 이미지.jpg'
+ import heat from '@/assets/온열질환 응급대처.png'
+ import fall from '@/assets/골절응급처치.png'
+ import fall2 from '@/assets/삼각건.png'
+ import fall3 from '@/assets/부목대기.png'
+ import fire from '@/assets/화재대피.png'
+ import fire2 from '@/assets/화재.jpg'
+ import hemostasis from '@/assets/지혈.jpg'
 
  export default {
    name: 'ResponseManualView',

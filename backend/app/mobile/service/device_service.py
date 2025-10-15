@@ -4,6 +4,7 @@ import uuid
 import pandas as pd
 import numpy as np
 import random
+import os
 from sqlalchemy import func
 import tensorflow as tf
 
@@ -11,7 +12,8 @@ from ...model import DeviceMeasurement, DeviceManagement, EmployeeHealth, Employ
 from ... import db
 
 # acc_gyr 데이터 로딩 (전역에서 한 번만)
-acc_gyr_df = pd.read_csv("/root/MindPark/backend/app/mobile/service/acc_gyr.csv")
+ACC_GYR_CSV_PATH = os.environ.get('ACC_GYR_CSV_PATH', '/root/proj/MindPark/backend/app/mobile/service/acc_gyr.csv')
+acc_gyr_df = pd.read_csv(ACC_GYR_CSV_PATH)
 
 class DeviceService:
     @staticmethod
@@ -180,7 +182,8 @@ class DeviceService:
                          'DM', 'CerevD', 'CKD', 'hr', 'temp', 'resp']
             X_heat = df_all[heat_cols].astype(np.float32)
 
-            heat_model = tf.keras.models.load_model("/root/MindPark/backend/app/mobile/service/models/heat_illness_model.h5")
+            ML_MODEL_PATH = os.environ.get('ML_MODEL_PATH', '/root/proj/MindPark/backend/app/mobile/service/models/heat_illness_model.h5')
+            heat_model = tf.keras.models.load_model(ML_MODEL_PATH)
             heat_preds = heat_model.predict(X_heat)
 
             results = []

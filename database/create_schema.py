@@ -4,7 +4,7 @@ import mysql.connector
 db_config = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'ScE1234**',
+    'password': 'password',
     'database': 'mindpark'
 }
 
