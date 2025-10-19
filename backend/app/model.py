@@ -49,6 +49,7 @@ class Employee(db.Model):
     def __repr__(self):
         return f'<Employee {self.emp_id}: {self.name}>'
 
+
 class Admin(db.Model):
     __tablename__ = 'ADMIN'
     
@@ -103,8 +104,8 @@ class DeviceMeasurement(db.Model):
     resp = db.Column(db.Integer)  # 호흡수
     spo2 = db.Column(db.Integer)  # 산소포화도
     walk = db.Column(db.Integer)  # 작업 관련 정보
-    loc_x = db.Column(db.Float) # 경도
-    loc_y = db.Column(db.Float) # 위도
+    loc_x = db.Column(db.Float)  # 경도
+    loc_y = db.Column(db.Float)  # 위도
     acc_x = db.Column(db.Float)  # x축 가속도
     acc_y = db.Column(db.Float)  # y축 가속도
     acc_z = db.Column(db.Float)  # z축 가속도
@@ -113,8 +114,7 @@ class DeviceMeasurement(db.Model):
     gyro_z = db.Column(db.Float)  # z축 자이로
     heat_risk = db.Column(db.String(5))  # 온열질환 위험도
     fall_risk = db.Column(db.String(5))  # 낙상 위험도
-    
-    
+
     def __repr__(self):
         return f'<DeviceMeasurement {self.measurement_id}: {self.emp_id} at {self.measure_time}>'
 
@@ -166,8 +166,8 @@ class HealthAnomaly(db.Model):
     # 새로 추가된 필드들
     status = db.Column(db.String(20), default='처리 중')  # '처리 중', '완료'
     action_content = db.Column(db.Text)  # 조치 내용
-    
-    #발생시간.
+
+    # 발생시간
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
     # 관계 설정

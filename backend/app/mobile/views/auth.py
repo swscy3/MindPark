@@ -3,19 +3,19 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from marshmallow import ValidationError
-from ..service.auth_service import AuthService
-from app.schema import LoginSchema
 from datetime import datetime, time, timedelta
-from app.model import DeviceManagement, Device, db, Employee
+from zoneinfo import ZoneInfo
 import random
 
-from datetime import datetime
-from zoneinfo import ZoneInfo
+from ..service.auth_service import AuthService
+from app.schema import LoginSchema
+from app.model import DeviceManagement, Device, db, Employee
 
 kst_now = datetime.now(ZoneInfo("Asia/Seoul"))
 
 # 모바일 인증 관련 Blueprint 생성
 mobile_auth_bp = Blueprint('mobile_auth', __name__)
+
 
 @mobile_auth_bp.route('/login', methods=['POST'])
 def mobile_login():
@@ -105,7 +105,7 @@ def mobile_login():
         "token": access_token,
         "user": user_data
     }), 200
-    
+
 
 @mobile_auth_bp.route('/logout', methods=['POST'])
 @jwt_required()
@@ -142,9 +142,9 @@ def mobile_logout():
             # ✅ 2. EN0003일 경우에만 더미 직원 퇴근 처리
             if emp_id == 'EN0003':
                 # (1) 오늘 출근한 직원 중 본인 제외
-                emp_ids_today = db.session.query(DeviceManagement.emp_id)\
-                    .filter(db.func.date(DeviceManagement.check_in) == today)\
-                    .filter(DeviceManagement.emp_id != emp_id)\
+                emp_ids_today = db.session.query(DeviceManagement.emp_id) \
+                    .filter(db.func.date(DeviceManagement.check_in) == today) \
+                    .filter(DeviceManagement.emp_id != emp_id) \
                     .distinct().all()
 
                 emp_ids_today = [e[0] for e in emp_ids_today]
@@ -156,7 +156,7 @@ def mobile_logout():
                     if not device:
                         continue
 
-                    record = DeviceManagement.query.filter_by(emp_id=emp_dummy, device_id=device.device_id)\
+                    record = DeviceManagement.query.filter_by(emp_id=emp_dummy, device_id=device.device_id) \
                         .filter(db.func.date(DeviceManagement.check_in) == today).first()
 
                     if record:

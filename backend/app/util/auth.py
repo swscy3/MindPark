@@ -1,6 +1,6 @@
 # app/api/auth.py (공통 API 라우트)
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import jwt_required, get_jwt_identity,decode_token
+from flask_jwt_extended import jwt_required, get_jwt_identity, decode_token
 from app.model import Employee, db
 from datetime import datetime, timezone
 
@@ -48,6 +48,7 @@ def change_password():
     
     return jsonify({"message": "비밀번호가 성공적으로 변경되었습니다"}), 200
 
+
 def verify_token_from_query():
     """쿼리 파라미터에서 토큰을 검증하는 함수"""
     token = request.args.get('token')
@@ -66,6 +67,7 @@ def verify_token_from_query():
         return True, decoded_token
     except Exception as e:
         return False, f"유효하지 않은 토큰입니다: {str(e)}"
+
 
 def verify_token_from_header():
     """Authorization 헤더에서 토큰을 검증하는 함수 (향후 확장용)"""

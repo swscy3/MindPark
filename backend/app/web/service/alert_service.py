@@ -4,16 +4,21 @@ from app import db
 from app.model import HealthAnomaly
 from app.util.time_utils import to_korea_time
 
+
 class AlertService:
     @staticmethod
     def get_all_anomalies():
         """전체 건강 이상 데이터 조회 및 포맷팅"""
         try:
-            all_anomalies = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).all()
+            all_anomalies = HealthAnomaly.query.options(
+                db.joinedload(HealthAnomaly.employee)
+            ).all()
             
             formatted_data = []
             for anomaly in all_anomalies:
-                employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
+                employee_name = (
+                    anomaly.employee.name if anomaly.employee else '알 수 없음'
+                )
                 
                 formatted_item = {
                     'anomaly_id': anomaly.anomaly_id,
@@ -43,12 +48,16 @@ class AlertService:
     def get_anomaly_by_id(anomaly_id):
         """특정 건강 이상 데이터 조회"""
         try:
-            anomaly = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).filter_by(anomaly_id=anomaly_id).first()
+            anomaly = HealthAnomaly.query.options(
+                db.joinedload(HealthAnomaly.employee)
+            ).filter_by(anomaly_id=anomaly_id).first()
             
             if not anomaly:
                 return None
-            
-            employee_name = anomaly.employee.name if anomaly.employee else '알 수 없음'
+
+            employee_name = (
+                anomaly.employee.name if anomaly.employee else '알 수 없음'
+            )
             
             return {
                 'anomaly_id': anomaly.anomaly_id,
@@ -66,20 +75,26 @@ class AlertService:
             raise e
 
     @staticmethod
-    def update_anomaly(anomaly_id, status=None, action_content=None, current_user=None):
+    def update_anomaly(anomaly_id, status=None, action_content=None,
+                       current_user=None):
         """건강 이상 데이터 업데이트"""
         try:
             # 유효성 검사
             if status is not None:
                 valid_statuses = ['처리중', '완료']
                 if status not in valid_statuses:
-                    raise ValueError(f'유효하지 않은 상태입니다. 유효한 값: {", ".join(valid_statuses)}')
+                    raise ValueError(
+                        f'유효하지 않은 상태입니다. '
+                        f'유효한 값: {", ".join(valid_statuses)}'
+                    )
             
             # 데이터베이스에서 항목 조회
-            anomaly = HealthAnomaly.query.filter_by(anomaly_id=anomaly_id).first()
+            anomaly = HealthAnomaly.query.filter_by(
+                anomaly_id=anomaly_id
+            ).first()
             if not anomaly:
                 return None
-            
+
             # 데이터 업데이트
             if status is not None:
                 anomaly.status = status
@@ -88,9 +103,11 @@ class AlertService:
             
             anomaly.updated_at = datetime.utcnow()
             db.session.commit()
-            
+
             # 업데이트된 데이터 반환
-            updated_anomaly = HealthAnomaly.query.options(db.joinedload(HealthAnomaly.employee)).filter_by(anomaly_id=anomaly_id).first()
+            updated_anomaly = HealthAnomaly.query.options(
+                db.joinedload(HealthAnomaly.employee)
+            ).filter_by(anomaly_id=anomaly_id).first()
             
             return {
                 'updated_item': {
@@ -102,8 +119,11 @@ class AlertService:
                 },
                 'all_anomalies': AlertService.get_all_anomalies()
             }
-            
+
         except Exception as e:
             db.session.rollback()
-            print(f"[ERROR] 건강 이상 데이터 수정 오류 (anomaly_id: {anomaly_id}): {str(e)}")
+            print(
+                f"[ERROR] 건강 이상 데이터 수정 오류 "
+                f"(anomaly_id: {anomaly_id}): {str(e)}"
+            )
             raise e

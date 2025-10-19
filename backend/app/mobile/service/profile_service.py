@@ -1,5 +1,6 @@
 from app.model import Employee, EmployeeHealth, EmergencyContact, db
 
+
 class ProfileService:
     @staticmethod
     def update_profile(emp_id, data):
@@ -127,7 +128,7 @@ class ProfileService:
         except Exception as e:
             return None
 
-    @staticmethod 
+    @staticmethod
     def get_profile_detailed(emp_id):
         """
         상세 프로필 정보 조회 (모든 필드 포함)

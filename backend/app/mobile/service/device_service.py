@@ -8,12 +8,17 @@ import os
 from sqlalchemy import func
 import tensorflow as tf
 
-from ...model import DeviceMeasurement, DeviceManagement, EmployeeHealth, Employee, HealthAnomaly, Admin  # ✅ Admin 추가
+from ...model import (DeviceMeasurement, DeviceManagement, EmployeeHealth,
+                       Employee, HealthAnomaly, Admin)
 from ... import db
 
 # acc_gyr 데이터 로딩 (전역에서 한 번만)
-ACC_GYR_CSV_PATH = os.environ.get('ACC_GYR_CSV_PATH', '/root/proj/MindPark/backend/app/mobile/service/acc_gyr.csv')
+ACC_GYR_CSV_PATH = os.environ.get(
+    'ACC_GYR_CSV_PATH',
+    '/root/proj/MindPark/backend/app/mobile/service/acc_gyr.csv'
+)
 acc_gyr_df = pd.read_csv(ACC_GYR_CSV_PATH)
+
 
 class DeviceService:
     @staticmethod
@@ -30,7 +35,8 @@ class DeviceService:
                 "device_id": device.device_id,
                 "battery": data.get("battery"),
                 "hr": data.get("hr"),
-                "temp": round(data.get("temp"), 1) if data.get("temp") is not None else None,
+                "temp": (round(data.get("temp"), 1)
+                         if data.get("temp") is not None else None),
                 "resp": data.get("resp"),
                 "spo2": data.get("spo2"),
                 "walk": random.randint(4000, 6000),
@@ -82,7 +88,10 @@ class DeviceService:
             emp_ids = [emp_id for emp_id in emp_ids if emp_id not in admin_ids]
 
             if len(emp_ids) < 3:
-                return {"status": "error", "message": "온열질환 및 낙상 더미 생성을 위한 출근 인원이 3명 이상 필요합니다."}
+                return {
+                    "status": "error",
+                    "message": "온열질환 및 낙상 더미 생성을 위한 출근 인원이 3명 이상 필요합니다."
+                }
 
             def random_location():
                 base_lat, base_lon = 34.910319, 126.4361795
@@ -141,7 +150,10 @@ class DeviceService:
             row['fall_label'] = sample['label']
             dummy_rows.append(row)
 
-            normal_emp_ids = [emp for emp in emp_ids if emp not in fall_emp_ids + [heat_emp_id]]
+            normal_emp_ids = [
+                emp for emp in emp_ids
+                if emp not in fall_emp_ids + [heat_emp_id]
+            ]
             for emp_id in normal_emp_ids:
                 row = base_row.copy()
                 row['emp_id'] = emp_id
@@ -176,13 +188,18 @@ class DeviceService:
             hr_bins = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
             hr_labels = [0, 1, 2, 3, 4]
             df_all['hr_ratio'] = df_all['hr'] / (220 - df_all['age'])
-            df_all['hr_cat'] = pd.cut(df_all['hr_ratio'], bins=hr_bins, labels=hr_labels, right=False)
+            df_all['hr_cat'] = pd.cut(
+                df_all['hr_ratio'], bins=hr_bins, labels=hr_labels, right=False
+            )
 
-            heat_cols = ['gender', 'age', 'location', 'HT', 'HeartDisease', 'Pscyco',
-                         'DM', 'CerevD', 'CKD', 'hr', 'temp', 'resp']
+            heat_cols = ['gender', 'age', 'location', 'HT', 'HeartDisease',
+                         'Pscyco', 'DM', 'CerevD', 'CKD', 'hr', 'temp', 'resp']
             X_heat = df_all[heat_cols].astype(np.float32)
 
-            ML_MODEL_PATH = os.environ.get('ML_MODEL_PATH', '/root/proj/MindPark/backend/app/mobile/service/models/heat_illness_model.h5')
+            ML_MODEL_PATH = os.environ.get(
+                'ML_MODEL_PATH',
+                '/root/proj/MindPark/backend/app/mobile/service/models/heat_illness_model.h5'
+            )
             heat_model = tf.keras.models.load_model(ML_MODEL_PATH)
             heat_preds = heat_model.predict(X_heat)
 
@@ -198,7 +215,8 @@ class DeviceService:
                 else:
                     heat_risk = "정상"
 
-                fall_label = df_all.loc[i, 'fall_label'] if 'fall_label' in df_all.columns else ''
+                fall_label = (df_all.loc[i, 'fall_label']
+                              if 'fall_label' in df_all.columns else '')
                 if fall_label in ['fall', 'lfall', 'rfall']:
                     fall_risk = "위험"
                 elif fall_label == 'light':
@@ -267,8 +285,13 @@ class DeviceService:
 
             db.session.commit()
 
-            user_heat_result = next((res for res in results if res["emp_id"] == current_user), None)
-            user_heat_status = user_heat_result["heat_risk"] if user_heat_result else "정상"
+            user_heat_result = next(
+                (res for res in results if res["emp_id"] == current_user),
+                None
+            )
+            user_heat_status = (
+                user_heat_result["heat_risk"] if user_heat_result else "정상"
+            )
 
             return {
                 "status": "success",
