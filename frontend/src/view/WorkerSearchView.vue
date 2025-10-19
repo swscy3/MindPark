@@ -121,7 +121,7 @@ const fetchWorkers = () => {
  
  // 토큰을 쿼리 파라미터로 추가
  const token = localStorage.getItem('token');
- const url = `http://orion.mokpo.ac.kr:8485/api/web/emp/list/stream?token=${token}`;
+ const url = `http://orion.mokpo.ac.kr:8495/api/web/emp/list/stream?token=${token}`;
  
  try {
    // EventSource 생성
@@ -232,7 +232,7 @@ const openModal = async (worker) => {
  
  try {
    const token = localStorage.getItem('token');
-   const detailUrl = `http://orion.mokpo.ac.kr:8485/api/web/emp/${worker.code}/detail?token=${token}`;
+   const detailUrl = `http://orion.mokpo.ac.kr:8495/api/web/emp/${worker.code}/detail?token=${token}`;
    
    console.log('호출할 API URL:', detailUrl);
    console.log('API 호출 시작...');

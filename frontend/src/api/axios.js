@@ -2,7 +2,7 @@ import axios from 'axios';
 import router from '../router'; // 라우터 임포트
 
 // 기본 URL 설정
-axios.defaults.baseURL = 'http://orion.mokpo.ac.kr:8485';
+axios.defaults.baseURL = 'http://orion.mokpo.ac.kr:8495';
 axios.defaults.timeout = 10000; // 10초 타임아웃
 
 // 요청 인터셉터

@@ -51,7 +51,7 @@ export default {
         console.log('로그인 시도:', this.id);
         
         // 백엔드 서버에 인증 요청
-        const response = await axios.post('http://orion.mokpo.ac.kr:8485/api/web/auth/login', {
+        const response = await axios.post('http://orion.mokpo.ac.kr:8495/api/web/auth/login', {
           id: this.id,
           password: this.password
         }, {

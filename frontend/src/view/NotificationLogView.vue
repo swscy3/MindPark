@@ -156,7 +156,7 @@ export default {
         console.log('SSE 연결 시작...');
         
         // SSE URL에 토큰을 쿼리 파라미터로 추가
-        const sseUrl = `http://orion.mokpo.ac.kr:8485/api/web/alert/anomalies/stream?token=${token}`;
+        const sseUrl = `http://orion.mokpo.ac.kr:8495/api/web/alert/anomalies/stream?token=${token}`;
         
         // EventSource 생성
         this.eventSource = new EventSource(sseUrl);
@@ -263,7 +263,7 @@ export default {
 
         // 업데이트 API 호출 (Bearer Token 방식)
         const response = await axios.post(
-          `http://orion.mokpo.ac.kr:8485/api/web/alert/anomalies/update`,
+          `http://orion.mokpo.ac.kr:8495/api/web/alert/anomalies/update`,
           requestBody,
           {
             headers: {
@@ -342,7 +342,7 @@ export default {
 
         // Bearer Token 방식으로 상세 정보 조회 (쿼리 파라미터 방식 사용)
         const response = await axios.get(
-          `http://orion.mokpo.ac.kr:8485/api/web/alert/anomalies/detail?anomaly_id=${notification.id}`,
+          `http://orion.mokpo.ac.kr:8495/api/web/alert/anomalies/detail?anomaly_id=${notification.id}`,
           {
             headers: {
               'Authorization': `Bearer ${token}`

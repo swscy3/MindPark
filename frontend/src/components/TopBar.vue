@@ -52,8 +52,7 @@
          </div>
        </div>
        <!-- 공지사항이 없는 경우 기본 메시지 표시 -->
-       <p v-else>폭염주의보 발령: 충분한 수분 섭취 바랍니다.</p>
-       <p>내일 09시 전체 조회 진행 예정입니다.</p>
+       <p v-else>내일 09시 전체 조회 진행 예정입니다.</p>
      </div>
    </div>
  </div>
@@ -110,7 +109,7 @@ export default {
        }
        
        // API 호출
-       const response = await axios.get('http://orion.mokpo.ac.kr:8485/api/util/weather', {
+       const response = await axios.get('http://orion.mokpo.ac.kr:8495/api/util/weather', {
          headers: {
            'Authorization': `Bearer ${token}`,
            'Accept': 'application/json'
@@ -148,7 +147,7 @@ export default {
              if (picturePath) {
                try {
                  // Docker 내부에서 정적 파일 접근 시도
-                 this.headerData.man_photo = `http://orion.mokpo.ac.kr:8485${picturePath}`;
+                 this.headerData.man_photo = `http://orion.mokpo.ac.kr:8495${picturePath}`;
                  
                  console.log('변환된 사진 URL:', this.headerData.man_photo);
                } catch (imgError) {

@@ -166,7 +166,7 @@ export default {
           endpoint = 'caution-employees';
         }
         
-        const url = `http://orion.mokpo.ac.kr:8485/api/web/safety/${endpoint}/stream?token=${token}`;
+        const url = `http://orion.mokpo.ac.kr:8495/api/web/safety/${endpoint}/stream?token=${token}`;
         
         console.log(`WorkerStatus SSE 연결 시작 (${this.activeTab}):`, url);
         this.eventSource = new EventSource(url);
@@ -197,8 +197,8 @@ export default {
                 gender: employee.basic_info.gender === 'M' ? '남' : '여',
                 phone: employee.emergency_contact.phone,
                 status: this.determineStatus(employee),
-                profileImage: employee.basic_info.picture 
-                  ? `http://orion.mokpo.ac.kr:8485${employee.basic_info.picture}` 
+                profileImage: employee.basic_info.picture
+                  ? `http://orion.mokpo.ac.kr:8495${employee.basic_info.picture}`
                   : '',
                 vitalSigns: {
                   heartRate: `${employee.current_vitals.heart_rate}bpm`,
